@@ -8,14 +8,14 @@ const TOKEN = "OTAxNzgzNzIzMTEwOTY1MzE4.YXU5iQ.JUiGtUC5YuEbIZPRa0uN9BqLg5c";
 const TOKENUSELESS =
     "ODAyNjk0MTk3NDYyODI3MDE5.YAy9Og.5UlqjgRPlBSg7tNXD8oTy_AeJLI";
 void main(List<String> arguments) async {
-  final bot = NyxxFactory.createNyxxWebsocket(TOKENUSELESS, GatewayIntents.all)
+  final bot = NyxxFactory.createNyxxWebsocket(TOKEN, GatewayIntents.all)
     ..registerPlugin(Logging())
     ..registerPlugin(CliIntegration())
     ..registerPlugin(IgnoreExceptions())
     ..connect();
   //init Music cluster
   Music.cluster = ICluster.createCluster(bot, Snowflake('802694197462827019'));
-  //NodeOptions(host: 'lava.link', port: 80, password: "password", ssl: false);
+  // initialize Music to an external free hosted server
   await Music.cluster.addNode(
     NodeOptions(host: 'lava.link', port: 80, password: "password", ssl: false),
   );
