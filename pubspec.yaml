@@ -1,0 +1,24 @@
+name: ptsi_bot
+description: A sample command-line application.
+version: 1.0.0
+# homepage: https://www.example.com
+
+environment:
+  sdk: '>=2.16.0-80.1.beta <3.0.0'
+
+
+# dependencies:
+#   path: ^1.8.0
+
+dev_dependencies:
+  lints: ^1.0.0
+  test: ^1.16.0
+dependencies: 
+  english_words: ^4.0.0
+  file: ^6.1.2
+  image: ^3.1.1
+  nyxx: ^3.2.3
+  nyxx_commander: ^3.0.0
+  nyxx_interactions: ^3.3.0
+  nyxx_lavalink: ^3.0.0
+  youtube_explode_dart: ^1.10.9+1
