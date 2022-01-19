@@ -1,7 +1,5 @@
 import 'command.dart';
-import 'package:nyxx/nyxx.dart';
 import 'dart:async';
-import 'command.dart';
 
 class Help extends SingleCommand {
   @override

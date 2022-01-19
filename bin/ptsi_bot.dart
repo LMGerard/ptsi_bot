@@ -1,7 +1,6 @@
 import 'package:nyxx_lavalink/nyxx_lavalink.dart';
 import 'package:ptsi_bot/commands/command.dart';
 import 'package:ptsi_bot/commands/music.dart';
-import 'package:ptsi_bot/ptsi_bot.dart' as ptsi_bot;
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
 
