@@ -8,6 +8,7 @@ const TOKEN = "OTAxNzgzNzIzMTEwOTY1MzE4.YXU5iQ.JUiGtUC5YuEbIZPRa0uN9BqLg5c";
 const TOKENUSELESS =
     "ODAyNjk0MTk3NDYyODI3MDE5.YAy9Og.5UlqjgRPlBSg7tNXD8oTy_AeJLI";
 void main(List<String> arguments) async {
+  // test
   final bot = NyxxFactory.createNyxxWebsocket(TOKEN, GatewayIntents.all)
     ..registerPlugin(Logging())
     ..registerPlugin(CliIntegration())
