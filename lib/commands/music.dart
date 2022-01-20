@@ -18,10 +18,7 @@ class Music extends Command {
         ]);
 
   @override
-  FutureOr execute(ISlashCommandInteractionEvent event) {
-    // TODO: implement execute
-    throw UnimplementedError();
-  }
+  FutureOr execute(ISlashCommandInteractionEvent event) {}
 }
 
 class _MusicJoin extends SubCommand {

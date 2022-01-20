@@ -45,5 +45,9 @@ abstract class SubCommand extends CommandOptionBuilder {
 }
 
 mixin HasMultiSelect {
-  Map<String, Function(IMultiselectInteractionEvent)> get multiSelects;
+  Map<String, Function(IMultiselectInteractionEvent p1)> get multiSelects;
+}
+
+mixin HasButton {
+  Map<String, Function(IButtonInteractionEvent p1)> get buttons;
 }
