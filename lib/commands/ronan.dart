@@ -1,5 +1,6 @@
 import 'dart:async';
-import 'dart:math';
+import 'dart:convert';
+import 'package:html/dom.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
 import 'command.dart';
@@ -51,39 +52,45 @@ class Ronan extends Command with HasMultiSelect {
     final choice = event.interaction.values.first;
 
     if (choice.endsWith('.pdf')) {
-      final k = await http.readBytes(Uri.parse(dlUrl + choice));
+      final k = await http.readBytes(Uri.parse(
+          dlUrl + choice.replaceFirst('Enseignement/2021-2022/', '')));
 
       event.sendFollowup(MessageBuilder.files(
         [AttachmentBuilder.bytes(k, choice.replaceAll('/', '_'))],
       )..content = 'Et voici ton document !');
       return;
     }
-    final options = tree![choice.split('/').last];
+
+    final options = getTree(choice);
+
     final ms = MultiselectBuilder('Ronan1');
     final row = ComponentRowBuilder()..addComponent(ms);
 
-    if (options is Iterable<String>) {
-      for (final option in options) {
+    for (String option in options) {
+      if (option.contains('.pdf')) {
         ms.addOption(MultiselectOptionBuilder(option, option));
-      }
-      event.editOriginalResponse(
-        ComponentMessageBuilder()..addComponentRow(row),
-      );
-      return;
-    }
-
-    if (options is Map<String, dynamic>) {
-      tree = options;
-      for (final option in options.keys) {
+      } else {
         ms.addOption(
           MultiselectOptionBuilder("$choice/$option", "$choice/$option"),
         );
       }
-      event.editOriginalResponse(
-        ComponentMessageBuilder()..addComponentRow(row),
-      );
-      return;
     }
+    event.editOriginalResponse(
+      ComponentMessageBuilder()..addComponentRow(row),
+    );
+  }
+
+  Iterable<String> getTree(String choice) {
+    Map current = tree!;
+    for (final e in choice.split('/')) {
+      final cur = current[e];
+      if (cur is Map) {
+        current = cur;
+        continue;
+      }
+      return cur as Iterable<String>;
+    }
+    return current.keys as Iterable<String>;
   }
 
   Map<String, dynamic> genTree(http.Response res) {
@@ -95,16 +102,28 @@ class Ronan extends Command with HasMultiSelect {
     final reg = RegExp('#.*');
     // Iterate over summary
     for (final i in summary.where((e) => e.attributes.containsKey('href'))) {
-      final id = reg.firstMatch(i.attributes['href']!)!.group(0)!;
-      final ps = parsed
-          .querySelectorAll('$id ~ *')
-          .takeWhile((e) => e.innerHtml.contains('.pdf'));
+      final id = reg
+          .firstMatch(i.attributes['href']!)!
+          .group(0)!
+          .replaceFirst('#', '');
 
-      if (ps.isEmpty) continue;
+      String str = "[id=\"$id\"] + p";
+      final elements = <Element>[];
+      while (true) {
+        final e = parsed.querySelector(str);
+        if (e == null) {
+          break;
+        } else {
+          elements.add(e);
+          str = "$str + p";
+        }
+      }
 
-      if (ps.length == 1) {
+      if (elements.isEmpty) continue;
+
+      if (elements.length == 1) {
         // Only 1 child => add pdfs list
-        final result = ps.first.children
+        final result = elements.first.children
             .where((e) => e.attributes.containsKey('href'))
             .map((e) => e.attributes['href']!);
         tree[id.replaceFirst('#', '')] = result;
@@ -112,7 +131,7 @@ class Ronan extends Command with HasMultiSelect {
         // Multiple children => add tree branch
         final result = <String, Iterable<String>>{};
 
-        for (final i in ps) {
+        for (final i in elements) {
           final name = i.children.first.text.replaceAll(RegExp('[0-9].*'), '');
           result[name] = i.children
               .where((e) => e.attributes.containsKey('href'))
@@ -123,6 +142,7 @@ class Ronan extends Command with HasMultiSelect {
         tree[id.replaceFirst('#', '')] = result;
       }
     }
+
     return tree;
   }
 }
