@@ -4,24 +4,26 @@ import 'package:nyxx_interactions/nyxx_interactions.dart';
 import 'package:ptsi_bot/commands/help.dart';
 import 'package:ptsi_bot/commands/music.dart';
 import 'package:ptsi_bot/commands/precision.dart';
+import 'package:ptsi_bot/commands/ronan.dart';
 import 'package:ptsi_bot/commands/stop.dart';
+import 'package:ptsi_bot/commands/test.dart';
 
-final List<Command> commands = [
+final List<SlashCommandBuilder> commands = [
   Stop(),
   Music(),
   Precision(),
   Help(),
+  Ronan(),
+  Test(),
 ];
 
-abstract class Command {
-  String get name;
-  String get description;
-
-  static register(Command command, IInteractions interactions) {
-    interactions.registerSlashCommand(command.buildCommand());
+abstract class Command extends SlashCommandBuilder {
+  Command(String name, String? description, List<CommandOptionBuilder> options)
+      : super(name, description, options) {
+    if (options.isEmpty) registerHandler(execute);
   }
 
-  SlashCommandBuilder buildCommand();
+  FutureOr execute(ISlashCommandInteractionEvent event);
 
   Future<void> respond(ISlashCommandInteractionEvent event,
       {String text = ''}) {
@@ -31,45 +33,17 @@ abstract class Command {
   }
 }
 
-abstract class SingleCommand extends Command {
-  FutureOr execute(ISlashCommandInteractionEvent event);
-
-  @override
-  SlashCommandBuilder buildCommand() {
-    return SlashCommandBuilder(
-      name,
-      description,
-      [],
-    )..registerHandler(execute);
+abstract class SubCommand extends CommandOptionBuilder {
+  SubCommand(String name, String description,
+      {List<CommandOptionBuilder>? options})
+      : super(CommandOptionType.subCommand, name, description,
+            options: options) {
+    registerHandler(execute);
   }
-}
-
-abstract class MultiCommand extends Command {
-  List<SubCommand> get subCommands;
-
-  @override
-  SlashCommandBuilder buildCommand() {
-    return SlashCommandBuilder(
-      name,
-      description,
-      subCommands.map((e) => e.buildCommand()).toList(),
-    );
-  }
-}
-
-abstract class SubCommand {
-  String get name;
-  List<SubCommand> get subCommands;
-  List<CommandOptionBuilder> get args;
 
   FutureOr execute(ISlashCommandInteractionEvent event);
+}
 
-  CommandOptionBuilder buildCommand() {
-    return CommandOptionBuilder(
-      CommandOptionType.subCommand,
-      name,
-      'description',
-      options: args,
-    )..registerHandler(execute);
-  }
+mixin HasMultiSelect {
+  Map<String, Function(IMultiselectInteractionEvent)> get multiSelects;
 }

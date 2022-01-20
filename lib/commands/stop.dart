@@ -2,11 +2,8 @@ import 'dart:async';
 import 'package:nyxx/nyxx.dart';
 import 'command.dart';
 
-class Stop extends SingleCommand {
-  @override
-  String get name => 'stop';
-  @override
-  String get description => 'Stop the bot.';
+class Stop extends Command {
+  Stop() : super("stop", "Stops the bot", []);
 
   @override
   FutureOr execute(event) {

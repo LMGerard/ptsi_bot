@@ -1,11 +1,8 @@
 import 'command.dart';
 import 'dart:async';
 
-class Help extends SingleCommand {
-  @override
-  String get name => 'help';
-  @override
-  String get description => 'As much help as you need';
+class Help extends Command {
+  Help() : super('help', 'As much help as you need', []);
 
   @override
   FutureOr execute(event) {

@@ -16,6 +16,7 @@ dev_dependencies:
 dependencies: 
   english_words: ^4.0.0
   file: ^6.1.2
+  http: ^0.13.4
   image: ^3.1.1
   nyxx: ^3.2.3
   nyxx_commander: ^3.0.0

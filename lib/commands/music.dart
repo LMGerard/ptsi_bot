@@ -4,31 +4,28 @@ import 'package:nyxx_interactions/nyxx_interactions.dart';
 import 'command.dart';
 import 'package:nyxx_lavalink/nyxx_lavalink.dart';
 
-class Music extends MultiCommand {
+class Music extends Command {
   static late final ICluster cluster;
 
+  Music()
+      : super('music', 'Obviously a music player...', [
+          _MusicJoin(),
+          _MusicPlay(),
+          _MusicPause(),
+          _MusicResume(),
+          _MusicSkip(),
+          _MusicStop(),
+        ]);
+
   @override
-  String get description => 'Obviously a music player...';
-  @override
-  String get name => 'music';
-  @override
-  List<SubCommand> get subCommands => [
-        _MusicJoin(),
-        _MusicPlay(),
-        _MusicPause(),
-        _MusicResume(),
-        _MusicSkip(),
-        _MusicStop(),
-      ];
+  FutureOr execute(ISlashCommandInteractionEvent event) {
+    // TODO: implement execute
+    throw UnimplementedError();
+  }
 }
 
 class _MusicJoin extends SubCommand {
-  @override
-  String get name => 'join';
-  @override
-  List<SubCommand> get subCommands => [];
-  @override
-  List<CommandOptionBuilder> get args => [];
+  _MusicJoin() : super('join', 'Join a voice channel');
 
   @override
   FutureOr execute(ISlashCommandInteractionEvent event) async {
@@ -48,19 +45,15 @@ class _MusicJoin extends SubCommand {
 }
 
 class _MusicPlay extends SubCommand {
-  @override
-  String get name => 'play';
-  @override
-  List<SubCommand> get subCommands => [];
-  @override
-  List<CommandOptionBuilder> get args => [
-        CommandOptionBuilder(
-          CommandOptionType.string,
-          'keywords',
-          'keywords to find your music',
-          required: true,
-        ),
-      ];
+  _MusicPlay()
+      : super('play', 'Play a song', options: [
+          CommandOptionBuilder(
+            CommandOptionType.string,
+            'keywords',
+            'keywords to find your music',
+            required: true,
+          )
+        ]);
 
   @override
   FutureOr execute(ISlashCommandInteractionEvent event) async {
@@ -92,12 +85,7 @@ class _MusicPlay extends SubCommand {
 }
 
 class _MusicPause extends SubCommand {
-  @override
-  String get name => 'pause';
-  @override
-  List<SubCommand> get subCommands => [];
-  @override
-  List<CommandOptionBuilder> get args => [];
+  _MusicPause() : super('pause', 'Pause the current song');
 
   @override
   FutureOr execute(ISlashCommandInteractionEvent event) async {
@@ -113,13 +101,7 @@ class _MusicPause extends SubCommand {
 }
 
 class _MusicResume extends SubCommand {
-  @override
-  String get name => 'resume';
-  @override
-  List<SubCommand> get subCommands => [];
-  @override
-  List<CommandOptionBuilder> get args => [];
-
+  _MusicResume() : super('resume', 'Resume the current song');
   @override
   FutureOr execute(ISlashCommandInteractionEvent event) async {
     final id = event.interaction.guild?.id;
@@ -134,12 +116,7 @@ class _MusicResume extends SubCommand {
 }
 
 class _MusicSkip extends SubCommand {
-  @override
-  String get name => 'skip';
-  @override
-  List<SubCommand> get subCommands => [];
-  @override
-  List<CommandOptionBuilder> get args => [];
+  _MusicSkip() : super('skip', 'Skip the current song');
 
   @override
   FutureOr execute(ISlashCommandInteractionEvent event) async {
@@ -155,12 +132,7 @@ class _MusicSkip extends SubCommand {
 }
 
 class _MusicStop extends SubCommand {
-  @override
-  String get name => 'stop';
-  @override
-  List<SubCommand> get subCommands => [];
-  @override
-  List<CommandOptionBuilder> get args => [];
+  _MusicStop() : super('stop', 'Stop the current song');
 
   @override
   FutureOr execute(ISlashCommandInteractionEvent event) async {
