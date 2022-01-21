@@ -37,7 +37,7 @@ class _MusicJoin extends SubCommand {
     Music.cluster.getOrCreatePlayerNode(event.interaction.guild!.id);
     channel.connect();
 
-    event.respond(MessageBuilder.content('Connected to #${channel.name}'));
+    sendEmbed<EMBED_RESPOND>(event, text: 'Connected to #${channel.name}');
   }
 }
 
@@ -60,9 +60,6 @@ class _MusicPlay extends SubCommand {
     }
 
     final node = Music.cluster.getOrCreatePlayerNode(id);
-    print(
-      event.getArg('keywords').value,
-    );
 
     // search for given query using lava link
     final searchResults = await node.autoSearch(
@@ -73,10 +70,10 @@ class _MusicPlay extends SubCommand {
     }
     // add found song to queue and play
     node.play(id, searchResults.tracks[0]).queue();
-    event.respond(
-      MessageBuilder.content(
-        'Added ${searchResults.tracks[0].info?.title} to queue',
-      ),
+
+    sendEmbed<EMBED_RESPOND>(
+      event,
+      text: 'Added ${searchResults.tracks[0].info?.title} to queue',
     );
   }
 }
@@ -93,7 +90,7 @@ class _MusicPause extends SubCommand {
     final node = Music.cluster.getOrCreatePlayerNode(id);
 
     node.pause(id);
-    event.respond(MessageBuilder.content('Music Paused'));
+    sendEmbed<EMBED_RESPOND>(event, text: 'Music Paused');
   }
 }
 
@@ -108,7 +105,7 @@ class _MusicResume extends SubCommand {
     final node = Music.cluster.getOrCreatePlayerNode(id);
 
     node.resume(id);
-    event.respond(MessageBuilder.content('Music Paused'));
+    sendEmbed<EMBED_RESPOND>(event, text: 'Music Resumed');
   }
 }
 
@@ -124,7 +121,7 @@ class _MusicSkip extends SubCommand {
     final node = Music.cluster.getOrCreatePlayerNode(id);
 
     node.skip(id);
-    event.respond(MessageBuilder.content('Music Skipped'));
+    sendEmbed<EMBED_RESPOND>(event, text: 'Music Skipped');
   }
 }
 
@@ -140,6 +137,6 @@ class _MusicStop extends SubCommand {
     final node = Music.cluster.getOrCreatePlayerNode(id);
 
     node.stop(id);
-    event.respond(MessageBuilder.content('Music Stopped'));
+    sendEmbed<EMBED_RESPOND>(event, text: 'Music Stopped');
   }
 }

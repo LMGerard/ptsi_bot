@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:nyxx/nyxx.dart';
 import 'command.dart';
 
 class Stop extends Command {
@@ -7,6 +6,6 @@ class Stop extends Command {
 
   @override
   FutureOr execute(event) {
-    event.respond(MessageBuilder.content('Bot stopped !'));
+    sendEmbed<EMBED_RESPOND>(event, text: 'Bot stopped !');
   }
 }

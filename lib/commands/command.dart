@@ -17,23 +17,20 @@ final List<SlashCommandBuilder> commands = [
   Test(),
 ];
 
-abstract class Command extends SlashCommandBuilder {
+mixin EMBED_SENDFOLLOWUP {}
+mixin EMBED_RESPOND {}
+mixin EMBED_SEND {}
+
+abstract class Command extends SlashCommandBuilder with EmbedSupport {
   Command(String name, String? description, List<CommandOptionBuilder> options)
       : super(name, description, options) {
     if (options.isEmpty) registerHandler(execute);
   }
 
   FutureOr execute(ISlashCommandInteractionEvent event);
-
-  Future<void> respond(ISlashCommandInteractionEvent event,
-      {String text = ''}) {
-    return event.respond(MessageBuilder.content(
-      "**$name:**\n\n" + text,
-    ));
-  }
 }
 
-abstract class SubCommand extends CommandOptionBuilder {
+abstract class SubCommand extends CommandOptionBuilder with EmbedSupport {
   SubCommand(String name, String description,
       {List<CommandOptionBuilder>? options})
       : super(CommandOptionType.subCommand, name, description,
@@ -50,4 +47,36 @@ mixin HasMultiSelect {
 
 mixin HasButton {
   Map<String, Function(IButtonInteractionEvent p1)> get buttons;
+}
+
+mixin EmbedSupport {
+  Future<void> sendEmbed<T>(ISlashCommandInteractionEvent event,
+      {String text = '', AttachmentBuilder? attachment}) async {
+    final embed = createEmbed(text: text);
+    final msg = MessageBuilder.embed(embed);
+    if (attachment != null) msg.addAttachment(attachment);
+    final channel = await event.interaction.channel.getOrDownload();
+
+    switch (T) {
+      case EMBED_RESPOND:
+        event.respond(msg);
+        break;
+      case EMBED_SENDFOLLOWUP:
+        event.sendFollowup(msg);
+        break;
+      case EMBED_SEND:
+        channel.sendMessage(msg);
+        break;
+      default:
+        event.respond(msg);
+        break;
+    }
+  }
+
+  EmbedBuilder createEmbed({String text = '', AttachmentBuilder? attachment}) {
+    return EmbedBuilder()
+      ..title = runtimeType.toString()
+      ..description = text
+      ..color = DiscordColor.fromInt(3447003);
+  }
 }

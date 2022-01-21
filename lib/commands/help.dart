@@ -7,8 +7,8 @@ class Help extends Command {
   @override
   FutureOr execute(event) {
     String text =
-        commands.map((e) => "${e.name} - ${e.description}").join('\n');
+        commands.map((e) => "__${e.name}__ - ${e.description}").join('\n');
 
-    return respond(event, text: text);
+    return sendEmbed<EMBED_RESPOND>(event, text: text);
   }
 }

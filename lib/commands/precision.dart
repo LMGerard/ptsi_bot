@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:file/memory.dart';
 import 'command.dart';
 import 'dart:async';
@@ -11,16 +13,18 @@ class Precision extends Command {
 
   @override
   FutureOr execute(event) async {
-    final text = nouns.take(3).join(' ');
+    final r = Random();
+    final text =
+        Iterable.generate(3, (_) => nouns.elementAt(r.nextInt(nouns.length)))
+            .join(' ');
     final im = generateImage(text);
 
     final mem = MemoryFileSystem().file('temp.png')
       ..writeAsBytesSync(encodePng(im));
 
+    final attach = AttachmentBuilder.file(mem);
     event.respond(
-      MessageBuilder.files([
-        AttachmentBuilder.file(mem),
-      ]),
+      MessageBuilder.files([attach]),
     );
     final channel = await event.interaction.channel.getOrDownload();
 
@@ -34,8 +38,9 @@ class Precision extends Command {
               e.message.author.bot == false,
         )
         .then(
-          (v) => channel.sendMessage(
-            MessageBuilder.content("${v.message.member?.mention} won !!"),
+          (v) => sendEmbed<EMBED_SEND>(
+            event,
+            text: "<@${v.message.author}> won !!",
           ),
         )
         .timeout(Duration(minutes: 1));
