@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:html/dom.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
@@ -8,16 +7,15 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart';
 
 class Ronan extends Command with HasMultiSelect {
-  Map<String, dynamic>? tree;
+  static Map<String, dynamic>? tree;
   Ronan() : super("ronan", "Access mathematics courses.", []);
 
-  final url = 'http://ronan.lauvergnat.fr/Enseignements_actuels_RL.html';
-  final dlUrl = 'http://ronan.lauvergnat.fr/Enseignement/2021-2022/';
+  static const url = 'http://ronan.lauvergnat.fr/Enseignements_actuels_RL.html';
+  static const dlUrl = 'http://ronan.lauvergnat.fr/Enseignement/2021-2022/';
 
   @override
   FutureOr execute(event) async {
-    final response = await http.get(Uri.parse(url));
-    tree = genTree(response);
+    await updateTree();
 
     final options = tree!.keys.map((e) => MultiselectOptionBuilder(e, e));
 
@@ -38,14 +36,9 @@ class Ronan extends Command with HasMultiSelect {
   @override
   Map<String, Function(IMultiselectInteractionEvent)> get multiSelects => {
         'Ronan0': multiselectHandlerHandler,
-        'Ronan1': multiselectHandlerHandler,
-        'Ronan2': multiselectHandlerHandler,
-        'Ronan3': multiselectHandlerHandler,
-        'Ronan4': multiselectHandlerHandler,
-        'Ronan5': multiselectHandlerHandler,
       };
 
-  Future<void> multiselectHandlerHandler(
+  static Future<void> multiselectHandlerHandler(
       IMultiselectInteractionEvent event) async {
     await event.acknowledge();
     if (tree == null) return;
@@ -63,7 +56,7 @@ class Ronan extends Command with HasMultiSelect {
 
     final options = getTree(choice);
 
-    final ms = MultiselectBuilder('Ronan1');
+    final ms = MultiselectBuilder('Ronan0');
     final row = ComponentRowBuilder()..addComponent(ms);
 
     for (String option in options) {
@@ -80,7 +73,7 @@ class Ronan extends Command with HasMultiSelect {
     );
   }
 
-  Iterable<String> getTree(String choice) {
+  static Iterable<String> getTree(String choice) {
     Map current = tree!;
     for (final e in choice.split('/')) {
       final cur = current[e];
@@ -93,7 +86,9 @@ class Ronan extends Command with HasMultiSelect {
     return current.keys as Iterable<String>;
   }
 
-  Map<String, dynamic> genTree(http.Response res) {
+  static Future updateTree() async {
+    final res = await http.get(Uri.parse(Ronan.url));
+
     final parsed = parse(res.body); // Parse html body
 
     final tree = <String, dynamic>{}; // Create tree to fill
@@ -143,6 +138,6 @@ class Ronan extends Command with HasMultiSelect {
       }
     }
 
-    return tree;
+    Ronan.tree = tree;
   }
 }
