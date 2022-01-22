@@ -4,6 +4,7 @@ import 'package:nyxx_interactions/nyxx_interactions.dart';
 import 'package:ptsi_bot/commands/help.dart';
 import 'package:ptsi_bot/commands/music.dart';
 import 'package:ptsi_bot/commands/precision.dart';
+import 'package:ptsi_bot/commands/quizz.dart';
 import 'package:ptsi_bot/commands/ronan.dart';
 import 'package:ptsi_bot/commands/stop.dart';
 import 'package:ptsi_bot/commands/test.dart';
@@ -15,6 +16,7 @@ final List<SlashCommandBuilder> commands = [
   Help(),
   Ronan(),
   Test(),
+  Quizz(),
 ];
 
 mixin EMBED_SENDFOLLOWUP {}
@@ -50,7 +52,7 @@ mixin HasButton {
 }
 
 mixin EmbedSupport {
-  Future<void> sendEmbed<T>(ISlashCommandInteractionEvent event,
+  Future<void> sendEmbed<T>(IInteractionEventWithAcknowledge event,
       {String text = '', AttachmentBuilder? attachment}) async {
     final embed = createEmbed(text: text);
     final msg = MessageBuilder.embed(embed);

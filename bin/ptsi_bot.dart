@@ -3,6 +3,7 @@ import 'package:ptsi_bot/commands/command.dart';
 import 'package:ptsi_bot/commands/music.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
+import 'package:ptsi_bot/commands/test.dart';
 
 const TOKEN = "OTAxNzgzNzIzMTEwOTY1MzE4.YXU5iQ.JUiGtUC5YuEbIZPRa0uN9BqLg5c";
 const TOKENUSELESS =

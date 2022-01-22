@@ -48,9 +48,9 @@ class Ronan extends Command with HasMultiSelect {
       final k = await http.readBytes(Uri.parse(
           dlUrl + choice.replaceFirst('Enseignement/2021-2022/', '')));
 
-      event.sendFollowup(MessageBuilder.files(
-        [AttachmentBuilder.bytes(k, choice.replaceAll('/', '_'))],
-      )..content = 'Et voici ton document !');
+      final b = ComponentMessageBuilder()
+        ..files = [AttachmentBuilder.bytes(k, choice.replaceAll('/', '_'))];
+      await event.respond(b..content = 'Et voici ton document !');
       return;
     }
 
