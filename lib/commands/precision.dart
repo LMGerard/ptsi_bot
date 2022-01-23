@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:file/memory.dart';
 import 'package:ptsi_bot/utils/color.dart';
 import 'command.dart';
 import 'dart:async';
@@ -20,10 +19,7 @@ class Precision extends Command {
             .join(' ');
     final im = generateImage(text);
 
-    final mem = MemoryFileSystem().file('temp.png')
-      ..writeAsBytesSync(encodePng(im));
-
-    final attach = AttachmentBuilder.file(mem);
+    final attach = AttachmentBuilder.bytes(encodePng(im), 'precision.png');
     event.respond(
       MessageBuilder.files([attach]),
     );

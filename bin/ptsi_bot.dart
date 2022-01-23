@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:nyxx_lavalink/nyxx_lavalink.dart';
 import 'package:ptsi_bot/commands/command.dart';
 import 'package:ptsi_bot/commands/music.dart';

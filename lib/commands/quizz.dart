@@ -3,11 +3,17 @@ import 'dart:math';
 import 'package:csv/csv.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
+import 'package:ptsi_bot/utils/path.dart';
 import 'command.dart';
 import 'dart:io';
 import 'package:path/path.dart' as path;
 
-final FILE_PATH = path.join('resources', 'quizz', 'openquizzdb_26.csv');
+final FILE_PATH = path.join(
+  PATH,
+  'resources',
+  'quizz',
+  'openquizzdb_26.csv',
+);
 
 class Quizz extends Command with HasButton {
   final List<List<dynamic>> data = [];
