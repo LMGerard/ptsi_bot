@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:file/memory.dart';
+import 'package:ptsi_bot/utils/color.dart';
 import 'command.dart';
 import 'dart:async';
 import 'package:nyxx/nyxx.dart';
@@ -43,14 +44,14 @@ class Precision extends Command {
             text: "<@${v.message.author}> won !!",
           ),
         )
-        .timeout(Duration(minutes: 1));
+        .timeout(Duration(minutes: 1), onTimeout: () {});
   }
 
   Image generateImage(String text) {
-    var im = Image(400, 100)..fill(0x4a9476);
+    var im = Image(400, 100)..fill(themeColor.abgr);
 
-    im = drawString(im, arial_24, 20, 40, text);
-
+    fillRect(im, 20, 20, 380, 80, 0xFFFFFFFF);
+    drawStringCentered(im, arial_24, text, color: 0xFF000000);
     return im;
   }
 }

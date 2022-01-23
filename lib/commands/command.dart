@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
 import 'package:ptsi_bot/commands/avatar.dart';
+import 'package:ptsi_bot/commands/function.dart';
 import 'package:ptsi_bot/commands/help.dart';
 import 'package:ptsi_bot/commands/music.dart';
 import 'package:ptsi_bot/commands/precision.dart';
@@ -9,6 +10,7 @@ import 'package:ptsi_bot/commands/quizz.dart';
 import 'package:ptsi_bot/commands/ronan.dart';
 import 'package:ptsi_bot/commands/stop.dart';
 import 'package:ptsi_bot/commands/test.dart';
+import 'package:ptsi_bot/utils/color.dart';
 
 final List<SlashCommandBuilder> commands = [
   Stop(),
@@ -19,6 +21,7 @@ final List<SlashCommandBuilder> commands = [
   Test(),
   Quizz(),
   Avatar(),
+  FunctionC(),
 ];
 
 mixin EMBED_SENDFOLLOWUP {}
@@ -83,6 +86,6 @@ mixin EmbedSupport {
     return EmbedBuilder()
       ..title = runtimeType.toString()
       ..description = text
-      ..color = DiscordColor.fromInt(3447003);
+      ..color = themeColor.color;
   }
 }
