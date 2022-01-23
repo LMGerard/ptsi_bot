@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
 import 'package:ptsi_bot/commands/avatar.dart';
-import 'package:ptsi_bot/commands/function.dart';
 import 'package:ptsi_bot/commands/help.dart';
+import 'package:ptsi_bot/commands/liaisons.dart';
 import 'package:ptsi_bot/commands/music.dart';
 import 'package:ptsi_bot/commands/precision.dart';
 import 'package:ptsi_bot/commands/quizz.dart';
@@ -21,7 +21,7 @@ final List<SlashCommandBuilder> commands = [
   Test(),
   Quizz(),
   Avatar(),
-  FunctionC(),
+  Liaisons(),
 ];
 
 mixin EMBED_SENDFOLLOWUP {}
@@ -31,7 +31,9 @@ mixin EMBED_SEND {}
 abstract class Command extends SlashCommandBuilder with EmbedSupport {
   Command(String name, String? description, List<CommandOptionBuilder> options)
       : super(name, description, options) {
-    if (!options.any((e) => e.type == CommandOptionType.subCommand)) {
+    if (!options.any((e) =>
+        e.type == CommandOptionType.subCommand ||
+        e.type == CommandOptionType.subCommandGroup)) {
       registerHandler(execute);
     }
   }
@@ -41,10 +43,14 @@ abstract class Command extends SlashCommandBuilder with EmbedSupport {
 
 abstract class SubCommand extends CommandOptionBuilder with EmbedSupport {
   SubCommand(String name, String description,
-      {List<CommandOptionBuilder>? options})
-      : super(CommandOptionType.subCommand, name, description,
-            options: options) {
-    registerHandler(execute);
+      {List<CommandOptionBuilder>? options,
+      List<ArgChoiceBuilder>? args,
+      CommandOptionType type = CommandOptionType.subCommand})
+      : super(type, name, description, options: options, choices: args) {
+    if (type == CommandOptionType.subCommand ||
+        type == CommandOptionType.subCommandGroup) {
+      registerHandler(execute);
+    }
   }
 
   FutureOr execute(ISlashCommandInteractionEvent event);
