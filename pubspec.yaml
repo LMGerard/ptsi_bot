@@ -25,6 +25,7 @@ dependencies:
   nyxx_commander: ^3.0.0
   nyxx_interactions: ^3.3.0
   nyxx_lavalink: ^3.0.0
+  path: ^1.8.1
   pdf: ^3.6.5
   sqlite3: ^1.5.1
   youtube_explode_dart: ^1.10.9+1

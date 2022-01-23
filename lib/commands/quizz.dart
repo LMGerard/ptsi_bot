@@ -5,11 +5,14 @@ import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
 import 'command.dart';
 import 'dart:io';
+import 'package:path/path.dart' as path;
+
+final FILE_PATH = path.join('resources', 'quizz', 'openquizzdb_26.csv');
 
 class Quizz extends Command with HasButton {
   final List<List<dynamic>> data = [];
   Quizz() : super('quizz', 'Quizz it up !', []) {
-    final fC = File(r'resources\quizz\openquizzdb_26.csv').readAsStringSync();
+    final fC = File(FILE_PATH).readAsStringSync();
     data.addAll(
         CsvToListConverter().convert(fC, fieldDelimiter: ';', eol: '\n'));
   }

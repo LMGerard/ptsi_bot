@@ -16,12 +16,17 @@ void main(List<String> arguments) async {
     ..registerPlugin(CliIntegration())
     ..registerPlugin(IgnoreExceptions())
     ..connect();
+
   bot.onReady.first.then(
     (value) {
       Music.cluster = ICluster.createCluster(bot, bot.appId);
       Music.cluster.addNode(
         NodeOptions(
-            host: 'lava.link', port: 80, password: "password", ssl: false),
+          host: 'lava.link',
+          port: 80,
+          password: "password",
+          ssl: false,
+        ),
       );
     },
   );
