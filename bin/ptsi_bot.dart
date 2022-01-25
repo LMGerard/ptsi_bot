@@ -37,17 +37,6 @@ void main(List<String> arguments) async {
   final interactions = IInteractions.create(WebsocketInteractionBackend(bot));
   commands.add(Help()); // Conflict issues because it accesses commands list
   for (final command in commands) {
-    // final perms = command.perm;
-    // if (perms > 0) {
-    //   final guilds = bot.guilds.values;
-    //   for (var guild in guilds) {
-    //     for (final role in guild.roles.values) {
-    //       if (role.permissions.hasPermission(perms)) {
-    //         command.addPermission(RoleCommandPermissionBuilder(role.id));
-    //       }
-    //     }
-    //   }
-    // }
     interactions.registerSlashCommand(command);
 
     if (command is HasMultiSelect) {
