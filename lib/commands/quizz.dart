@@ -8,26 +8,43 @@ import 'command.dart';
 import 'dart:io';
 import 'package:path/path.dart' as path;
 
-final FILE_PATH = path.join(
-  PATH,
-  'resources',
-  'quizz',
-  'openquizzdb_26.csv',
-);
+final basePath = path.join(PATH, 'resources', 'quizz');
+final quizzesPaths = Directory(basePath).listSync().map((e) => e.path);
 
 class Quizz extends Command with HasButton {
-  final List<List<dynamic>> data = [];
-  Quizz() : super('quizz', 'Quizz it up !', []) {
-    final fC = File(FILE_PATH).readAsStringSync();
-    data.addAll(
-        CsvToListConverter().convert(fC, fieldDelimiter: ';', eol: '\n'));
+  final Map<String, List<List<dynamic>>> data = {};
+  Quizz()
+      : super('quizz', 'Quizz it up !', [
+          CommandOptionBuilder(
+            CommandOptionType.string,
+            'theme',
+            'theme',
+            choices: quizzesPaths
+                .map((e) => ArgChoiceBuilder(
+                      path.basenameWithoutExtension(e),
+                      path.basenameWithoutExtension(e),
+                    ))
+                .toList(),
+          )
+        ]) {
+    for (final e in quizzesPaths) {
+      final file = File(e);
+      final csv = CsvToListConverter()
+          .convert(file.readAsStringSync(), fieldDelimiter: ';', eol: '\n');
+      data[path.basenameWithoutExtension(e)] = csv;
+    }
   }
 
   @override
   FutureOr execute(event) async {
-    final row = data[Random().nextInt(data.length)];
+    final theme = event.args.isEmpty
+        ? data.keys.elementAt(Random().nextInt(data.length))
+        : event.getArg('theme').value as String;
+
+    final row = data[theme]![Random().nextInt(data[theme]!.length)];
+
     final props = row.sublist(3, 7)..shuffle();
-    String text = '**${row[2]}** : \n';
+    String text = '**Quizz  -  $theme\n****${row[2]}** : \n';
 
     final msg = ComponentRowBuilder();
     final emojis = {1: '1️⃣', 2: '2️⃣', 3: '3️⃣', 4: '4️⃣'};
@@ -49,8 +66,6 @@ class Quizz extends Command with HasButton {
       ..content = text;
     event.respond(cmb);
   }
-
-  void test() async {}
 
   @override
   Map<String, Function(IButtonInteractionEvent p1)> get buttons => {
