@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
 import 'package:ptsi_bot/commands/avatar.dart';
-import 'package:ptsi_bot/commands/help.dart';
+import 'package:ptsi_bot/commands/ban.dart';
 import 'package:ptsi_bot/commands/liaisons.dart';
 import 'package:ptsi_bot/commands/music.dart';
 import 'package:ptsi_bot/commands/precision.dart';
@@ -12,11 +12,10 @@ import 'package:ptsi_bot/commands/stop.dart';
 import 'package:ptsi_bot/commands/test.dart';
 import 'package:ptsi_bot/utils/color.dart';
 
-final List<SlashCommandBuilder> commands = [
+final List<Command> commands = [
   Stop(),
   Music(),
   Precision(),
-  Help(),
   Ronan(),
   Test(),
   Quizz(),
@@ -29,8 +28,14 @@ mixin EMBED_RESPOND {}
 mixin EMBED_SEND {}
 
 abstract class Command extends SlashCommandBuilder with EmbedSupport {
-  Command(String name, String? description, List<CommandOptionBuilder> options)
-      : super(name, description, options) {
+  final int perm;
+  Command(
+    String name,
+    String? description,
+    List<CommandOptionBuilder> options, {
+    List<int> permissions = const [],
+  })  : perm = permissions.fold(0, (p, e) => p | e),
+        super(name, description, options) {
     if (!options.any((e) =>
         e.type == CommandOptionType.subCommand ||
         e.type == CommandOptionType.subCommandGroup)) {
@@ -66,8 +71,10 @@ mixin HasButton {
 
 mixin EmbedSupport {
   Future<void> sendEmbed<T>(IInteractionEventWithAcknowledge event,
-      {String text = '', AttachmentBuilder? attachment}) async {
-    final embed = createEmbed(text: text);
+      {String title = '',
+      String text = '',
+      AttachmentBuilder? attachment}) async {
+    final embed = createEmbed(title: title, text: text);
     final msg = MessageBuilder.embed(embed);
     if (attachment != null) msg.addAttachment(attachment);
     final channel = await event.interaction.channel.getOrDownload();
@@ -88,9 +95,10 @@ mixin EmbedSupport {
     }
   }
 
-  EmbedBuilder createEmbed({String text = '', AttachmentBuilder? attachment}) {
+  EmbedBuilder createEmbed(
+      {String title = '', String text = '', AttachmentBuilder? attachment}) {
     return EmbedBuilder()
-      ..title = runtimeType.toString()
+      ..title = runtimeType.toString() + title
       ..description = text
       ..color = themeColor.color;
   }
