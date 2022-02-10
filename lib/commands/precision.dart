@@ -20,9 +20,8 @@ class Precision extends Command {
     final im = generateImage(text);
 
     final attach = AttachmentBuilder.bytes(encodePng(im), 'precision.png');
-    event.respond(
-      MessageBuilder.files([attach]),
-    );
+
+    sendEmbed<EMBED_RESPOND>(event, attachment: attach);
     final channel = await event.interaction.channel.getOrDownload();
 
     (event.interaction.client as INyxxWebsocket)

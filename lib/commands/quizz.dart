@@ -61,10 +61,7 @@ class Quizz extends Command with HasButton {
       ));
     }
 
-    final cmb = ComponentMessageBuilder()
-      ..addComponentRow(msg)
-      ..content = text;
-    event.respond(cmb);
+    sendEmbed<EMBED_RESPOND>(event, componentRowBuilders: [msg], text: text);
   }
 
   @override
@@ -89,8 +86,11 @@ class Quizz extends Command with HasButton {
       row.addComponent(ButtonBuilder('', 'quizz0', ComponentStyle.danger,
           emoji: UnicodeEmoji('❌'), disabled: true));
     }
-    event.respond(ComponentMessageBuilder()
-      ..addComponentRow(row)
-      ..content = msg.content);
+
+    sendEmbed<EMBED_RESPOND>(
+      event,
+      componentRowBuilders: [row],
+      text: msg.content,
+    );
   }
 }

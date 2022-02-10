@@ -18,12 +18,15 @@ class Ronan extends Command with HasMultiSelect {
     await updateTree();
 
     final options = tree!.keys.map((e) => MultiselectOptionBuilder(e, e));
+    final row = ComponentRowBuilder()
+      ..addComponent(
+        MultiselectBuilder('Ronan0', options),
+      );
 
-    await event.respond(
-      ComponentMessageBuilder()
-        ..content = "Choisis le document à télécharger :"
-        ..addComponentRow(ComponentRowBuilder()
-          ..addComponent(MultiselectBuilder('Ronan0', options))),
+    sendEmbed<EMBED_RESPOND>(
+      event,
+      text: 'Choisis le document à télécharger :',
+      componentRowBuilders: [row],
     );
   }
 
@@ -35,10 +38,10 @@ class Ronan extends Command with HasMultiSelect {
 
   @override
   Map<String, Function(IMultiselectInteractionEvent)> get multiSelects => {
-        'Ronan0': multiselectHandlerHandler,
+        'Ronan0': multiselectHandler,
       };
 
-  static Future<void> multiselectHandlerHandler(
+  Future<void> multiselectHandler(
       IMultiselectInteractionEvent event) async {
     await event.acknowledge();
     if (tree == null) return;
@@ -48,10 +51,11 @@ class Ronan extends Command with HasMultiSelect {
       final k = await http.readBytes(Uri.parse(
           dlUrl + choice.replaceFirst('Enseignement/2021-2022/', '')));
 
-      final b = ComponentMessageBuilder()
-        ..files = [AttachmentBuilder.bytes(k, choice.replaceAll('/', '_'))];
-      await event.respond(b..content = 'Et voici ton document !');
-      return;
+      sendEmbed<EMBED_RESPOND>(
+        event,
+        text: 'Et voici ton document !',
+        attachment: AttachmentBuilder.bytes(k, choice.replaceAll('/', '_')),
+      );
     }
 
     final options = getTree(choice);
@@ -68,9 +72,8 @@ class Ronan extends Command with HasMultiSelect {
         );
       }
     }
-    event.editOriginalResponse(
-      ComponentMessageBuilder()..addComponentRow(row),
-    );
+
+    sendEmbed<EMBED_EDIT_RESPONSE>(event, componentRowBuilders: [row]);
   }
 
   static Iterable<String> getTree(String choice) {
@@ -93,16 +96,16 @@ class Ronan extends Command with HasMultiSelect {
 
     final tree = <String, dynamic>{}; // Create tree to fill
     // Get summary section
-    final summary = parsed.querySelectorAll('.masection ul li a');
+    final summary = parsed.querySelectorAll('.masection ul li a[href]');
     final reg = RegExp('#.*');
     // Iterate over summary
-    for (final i in summary.where((e) => e.attributes.containsKey('href'))) {
-      final id = reg
+    for (final i in summary) {
+      final uid = reg
           .firstMatch(i.attributes['href']!)!
           .group(0)!
           .replaceFirst('#', '');
 
-      String str = "[id=\"$id\"] + p";
+      String str = "[id=\"$uid\"] + p";
       final elements = <Element>[];
       while (true) {
         final e = parsed.querySelector(str);
@@ -121,7 +124,7 @@ class Ronan extends Command with HasMultiSelect {
         final result = elements.first.children
             .where((e) => e.attributes.containsKey('href'))
             .map((e) => e.attributes['href']!);
-        tree[id.replaceFirst('#', '')] = result;
+        tree[uid.replaceFirst('#', '')] = result;
       } else {
         // Multiple children => add tree branch
         final result = <String, Iterable<String>>{};
@@ -134,7 +137,7 @@ class Ronan extends Command with HasMultiSelect {
                   .replaceFirst('Enseignement/2021-2022/', ''));
         }
 
-        tree[id.replaceFirst('#', '')] = result;
+        tree[uid.replaceFirst('#', '')] = result;
       }
     }
 

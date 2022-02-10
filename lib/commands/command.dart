@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
 import 'package:ptsi_bot/commands/avatar.dart';
-import 'package:ptsi_bot/commands/ban.dart';
 import 'package:ptsi_bot/commands/liaisons.dart';
 import 'package:ptsi_bot/commands/music.dart';
 import 'package:ptsi_bot/commands/precision.dart';
@@ -10,6 +9,7 @@ import 'package:ptsi_bot/commands/quizz.dart';
 import 'package:ptsi_bot/commands/ronan.dart';
 import 'package:ptsi_bot/commands/stop.dart';
 import 'package:ptsi_bot/commands/test.dart';
+import 'package:ptsi_bot/commands/wiki.dart';
 import 'package:ptsi_bot/utils/color.dart';
 
 final List<Command> commands = [
@@ -26,21 +26,14 @@ final List<Command> commands = [
 mixin EMBED_SENDFOLLOWUP {}
 mixin EMBED_RESPOND {}
 mixin EMBED_SEND {}
+mixin EMBED_EDIT_RESPONSE {}
 
 abstract class Command extends SlashCommandBuilder with EmbedSupport {
-  final int perm;
-  Command(
-    String name,
-    String? description,
-    List<CommandOptionBuilder> options, {
-    List<int> permissions = const [],
-  })  : perm = permissions.fold(0, (p, e) => p | e),
-        super(name, description, options) {
+  Command(String name, String? description, List<CommandOptionBuilder> options)
+      : super(name, description, options) {
     if (!options.any((e) =>
         e.type == CommandOptionType.subCommand ||
-        e.type == CommandOptionType.subCommandGroup)) {
-      registerHandler(execute);
-    }
+        e.type == CommandOptionType.subCommandGroup)) {}
   }
 
   FutureOr execute(ISlashCommandInteractionEvent event);
@@ -73,11 +66,19 @@ mixin EmbedSupport {
   Future<void> sendEmbed<T>(IInteractionEventWithAcknowledge event,
       {String title = '',
       String text = '',
+      Iterable<ComponentRowBuilder> componentRowBuilders = const [],
       AttachmentBuilder? attachment}) async {
-    final embed = createEmbed(title: title, text: text);
-    final msg = MessageBuilder.embed(embed);
+    final msg = ComponentMessageBuilder()
+      ..embeds = [
+        createEmbed(title: title, text: text)..imageUrl = attachment?.attachUrl
+      ];
+
+    if (componentRowBuilders.isNotEmpty) {
+      for (final row in componentRowBuilders.take(5)) {
+        msg.addComponentRow(row);
+      }
+    }
     if (attachment != null) msg.addAttachment(attachment);
-    final channel = await event.interaction.channel.getOrDownload();
 
     switch (T) {
       case EMBED_RESPOND:
@@ -87,11 +88,16 @@ mixin EmbedSupport {
         event.sendFollowup(msg);
         break;
       case EMBED_SEND:
+        final channel = await event.interaction.channel.getOrDownload();
         channel.sendMessage(msg);
         break;
-      default:
-        event.respond(msg);
+      case EMBED_EDIT_RESPONSE:
+        event.editOriginalResponse(msg);
         break;
+      default:
+        throw Exception(
+          'You forgot to specify the type of embed message to send.',
+        );
     }
   }
 
