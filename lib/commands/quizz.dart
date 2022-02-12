@@ -12,7 +12,7 @@ final basePath = path.join(PATH, 'resources', 'quizz');
 final quizzesPaths = Directory(basePath).listSync().map((e) => e.path);
 
 class Quizz extends Command with HasButton {
-  final Map<String, List<List<dynamic>>> data = {};
+  final Map<String, List<_Question>> data = {};
   Quizz()
       : super('quizz', 'Quizz it up !', [
           CommandOptionBuilder(
@@ -31,7 +31,8 @@ class Quizz extends Command with HasButton {
       final file = File(e);
       final csv = CsvToListConverter()
           .convert(file.readAsStringSync(), fieldDelimiter: ';', eol: '\n');
-      data[path.basenameWithoutExtension(e)] = csv;
+      data[path.basenameWithoutExtension(e)] =
+          csv.map((e) => _Question(e)).toList();
     }
   }
 
@@ -41,10 +42,10 @@ class Quizz extends Command with HasButton {
         ? data.keys.elementAt(Random().nextInt(data.length))
         : event.getArg('theme').value as String;
 
-    final row = data[theme]![Random().nextInt(data[theme]!.length)];
+    final question = data[theme]![Random().nextInt(data[theme]!.length)];
 
-    final props = row.sublist(3, 7)..shuffle();
-    String text = '**Quizz  -  $theme\n****${row[2]}** : \n';
+    final props = question.props..shuffle();
+    String text = '\n**${question.question}** : \n```diff\n';
 
     final msg = ComponentRowBuilder();
     final emojis = {1: '1️⃣', 2: '2️⃣', 3: '3️⃣', 4: '4️⃣'};
@@ -55,13 +56,19 @@ class Quizz extends Command with HasButton {
 
       msg.addComponent(ButtonBuilder(
         '',
-        prop == row[3] ? 'quizz0' : 'quizz$i',
+        prop == question.prop1 ? 'quizz0' : 'quizz$i',
         ComponentStyle.secondary,
         emoji: UnicodeEmoji(emojis[i]!),
       ));
     }
+    text += '```';
 
-    sendEmbed<EMBED_RESPOND>(event, componentRowBuilders: [msg], text: text);
+    sendEmbed<EMBED_RESPOND>(
+      event,
+      title: ' - $theme - ${question.index}',
+      componentRowBuilders: [msg],
+      text: text,
+    );
   }
 
   @override
@@ -73,10 +80,10 @@ class Quizz extends Command with HasButton {
         'quizz4': answerSelected,
       };
 
-  void answerSelected(IButtonInteractionEvent event) {
+  answerSelected(IButtonInteractionEvent event) {
     final msg = event.interaction.message;
 
-    if (msg == null) return;
+    if (msg == null) return event.acknowledge();
 
     final row = ComponentRowBuilder();
     if (event.interaction.customId == 'quizz0') {
@@ -87,10 +94,35 @@ class Quizz extends Command with HasButton {
           emoji: UnicodeEmoji('❌'), disabled: true));
     }
 
+    final info = msg.embeds.first.title!.split('-');
+    final question = data[info[1].trim()]?[int.parse(info[2].trim())];
+
     sendEmbed<EMBED_RESPOND>(
       event,
       componentRowBuilders: [row],
-      text: msg.content,
+      text: '**${question?.question}**```diff\n+${question?.prop1}```',
     );
   }
+}
+
+class _Question {
+  final int index;
+  final String lang;
+  final String question;
+  final String prop1;
+  final String prop2;
+  final String prop3;
+  final String prop4;
+
+  _Question(List data)
+      : index = data[0] - 1,
+        lang = data[1].toString(),
+        question = data[2].toString(),
+        prop1 = data[3].toString(),
+        prop2 = data[4].toString(),
+        prop3 = data[5].toString(),
+        prop4 = data[6].toString();
+
+  List<String> get props => [prop1, prop2, prop3, prop4];
+  String get answer => prop1;
 }

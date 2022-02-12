@@ -9,7 +9,6 @@ import 'package:ptsi_bot/commands/quizz.dart';
 import 'package:ptsi_bot/commands/ronan.dart';
 import 'package:ptsi_bot/commands/stop.dart';
 import 'package:ptsi_bot/commands/test.dart';
-import 'package:ptsi_bot/commands/wiki.dart';
 import 'package:ptsi_bot/utils/color.dart';
 
 final List<Command> commands = [
@@ -33,7 +32,9 @@ abstract class Command extends SlashCommandBuilder with EmbedSupport {
       : super(name, description, options) {
     if (!options.any((e) =>
         e.type == CommandOptionType.subCommand ||
-        e.type == CommandOptionType.subCommandGroup)) {}
+        e.type == CommandOptionType.subCommandGroup)) {
+      registerHandler(execute);
+    }
   }
 
   FutureOr execute(ISlashCommandInteractionEvent event);
