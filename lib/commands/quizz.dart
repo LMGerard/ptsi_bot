@@ -11,6 +11,16 @@ import 'package:path/path.dart' as path;
 final basePath = path.join(PATH, 'resources', 'quizz');
 final quizzesPaths = Directory(basePath).listSync().map((e) => e.path);
 
+final emojis = {
+  1: UnicodeEmoji('1️⃣'),
+  2: UnicodeEmoji('2️⃣'),
+  3: UnicodeEmoji('3️⃣'),
+  4: UnicodeEmoji('4️⃣'),
+  'right': UnicodeEmoji('✅'),
+  'wrong': UnicodeEmoji('❌'),
+  'next': UnicodeEmoji('➡️'),
+};
+
 class Quizz extends Command with HasButton {
   final Map<String, List<_Question>> data = {};
   Quizz()
@@ -42,33 +52,7 @@ class Quizz extends Command with HasButton {
         ? data.keys.elementAt(Random().nextInt(data.length))
         : event.getArg('theme').value as String;
 
-    final question = data[theme]![Random().nextInt(data[theme]!.length)];
-
-    final props = question.props..shuffle();
-    String text = '\n**${question.question}** : \n```diff\n';
-
-    final msg = ComponentRowBuilder();
-    final emojis = {1: '1️⃣', 2: '2️⃣', 3: '3️⃣', 4: '4️⃣'};
-
-    for (int i = 1; i <= 4; i++) {
-      final prop = props.removeAt(0);
-      text += '\n$i. $prop';
-
-      msg.addComponent(ButtonBuilder(
-        '',
-        prop == question.prop1 ? 'quizz0' : 'quizz$i',
-        ComponentStyle.secondary,
-        emoji: UnicodeEmoji(emojis[i]!),
-      ));
-    }
-    text += '```';
-
-    sendEmbed<EMBED_RESPOND>(
-      event,
-      title: ' - $theme - ${question.index}',
-      componentRowBuilders: [msg],
-      text: text,
-    );
+    sendQuestion(event, theme);
   }
 
   @override
@@ -78,7 +62,44 @@ class Quizz extends Command with HasButton {
         'quizz2': answerSelected,
         'quizz3': answerSelected,
         'quizz4': answerSelected,
+        'next': next,
       };
+
+  next(event) {
+    final theme = data.keys.elementAt(Random().nextInt(data.length));
+    sendQuestion(event, theme);
+  }
+
+  sendQuestion(IInteractionEventWithAcknowledge event, String theme) {
+    final question = data[theme]![Random().nextInt(data[theme]!.length)];
+
+    final props = question.props..shuffle();
+    String text = '\n**${question.question}** : \n```diff\n';
+
+    final msg = ComponentRowBuilder();
+
+    final quizzes = ['quizz1', 'quizz2', 'quizz3'];
+
+    for (int i = 1; i <= 4; i++) {
+      final prop = props.removeAt(0);
+      text += '\n$i. $prop';
+
+      msg.addComponent(ButtonBuilder(
+        '',
+        prop == question.prop1 ? 'quizz0' : quizzes.removeAt(0),
+        ComponentStyle.secondary,
+        emoji: emojis[i],
+      ));
+    }
+    text += '\n```';
+
+    sendEmbed<EMBED_RESPOND>(
+      event,
+      title: ' - $theme - ${question.index}',
+      componentRowBuilders: [msg],
+      text: text,
+    );
+  }
 
   answerSelected(IButtonInteractionEvent event) {
     final msg = event.interaction.message;
@@ -88,11 +109,13 @@ class Quizz extends Command with HasButton {
     final row = ComponentRowBuilder();
     if (event.interaction.customId == 'quizz0') {
       row.addComponent(ButtonBuilder('', 'quizz0', ComponentStyle.success,
-          emoji: UnicodeEmoji('✅'), disabled: true));
+          emoji: emojis['right'], disabled: true));
     } else {
       row.addComponent(ButtonBuilder('', 'quizz0', ComponentStyle.danger,
-          emoji: UnicodeEmoji('❌'), disabled: true));
+          emoji: emojis['wrong'], disabled: true));
     }
+    row.addComponent(ButtonBuilder('next', 'next', ComponentStyle.primary,
+        emoji: emojis['next']));
 
     final info = msg.embeds.first.title!.split('-');
     final question = data[info[1].trim()]?[int.parse(info[2].trim())];
@@ -100,7 +123,7 @@ class Quizz extends Command with HasButton {
     sendEmbed<EMBED_RESPOND>(
       event,
       componentRowBuilders: [row],
-      text: '**${question?.question}**```diff\n+${question?.prop1}```',
+      text: '**${question?.question}**\n```diff\n+${question?.prop1}\n```',
     );
   }
 }
