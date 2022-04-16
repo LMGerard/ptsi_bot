@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
 import 'package:ptsi_bot/commands/avatar.dart';
@@ -64,7 +65,7 @@ mixin HasButton {
 }
 
 mixin EmbedSupport {
-  Future<void> sendEmbed<T>(IInteractionEventWithAcknowledge event,
+  Future sendEmbed<T>(IInteractionEventWithAcknowledge event,
       {String title = '',
       String text = '',
       Iterable<ComponentRowBuilder> componentRowBuilders = const [],
@@ -83,18 +84,14 @@ mixin EmbedSupport {
 
     switch (T) {
       case EMBED_RESPOND:
-        event.respond(msg);
-        break;
+        return event.respond(msg);
       case EMBED_SENDFOLLOWUP:
-        event.sendFollowup(msg);
-        break;
+        return event.sendFollowup(msg);
       case EMBED_SEND:
         final channel = await event.interaction.channel.getOrDownload();
-        channel.sendMessage(msg);
-        break;
+        return channel.sendMessage(msg);
       case EMBED_EDIT_RESPONSE:
-        event.editOriginalResponse(msg);
-        break;
+        return event.editOriginalResponse(msg);
       default:
         throw Exception(
           'You forgot to specify the type of embed message to send.',

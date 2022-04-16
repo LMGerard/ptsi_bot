@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
 import 'command.dart';
@@ -106,7 +105,7 @@ class Quizz extends Command with HasButton {
       msg.addComponent(ButtonBuilder(
         '',
         prop == question.prop1 ? 'quizz0' : quizzes.removeAt(0),
-        ComponentStyle.secondary,
+        ButtonStyle.secondary,
         emoji: emojis[i],
       ));
     }
@@ -127,13 +126,13 @@ class Quizz extends Command with HasButton {
 
     final row = ComponentRowBuilder();
     if (event.interaction.customId == 'quizz0') {
-      row.addComponent(ButtonBuilder('', 'quizz0', ComponentStyle.success,
+      row.addComponent(ButtonBuilder('', 'quizz0', ButtonStyle.success,
           emoji: emojis['right'], disabled: true));
     } else {
-      row.addComponent(ButtonBuilder('', 'quizz0', ComponentStyle.danger,
+      row.addComponent(ButtonBuilder('', 'quizz0', ButtonStyle.danger,
           emoji: emojis['wrong'], disabled: true));
     }
-    row.addComponent(ButtonBuilder('next', 'next', ComponentStyle.primary,
+    row.addComponent(ButtonBuilder('next', 'next', ButtonStyle.primary,
         emoji: emojis['next']));
 
     final info = msg.embeds.first.title!.split('-');
