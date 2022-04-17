@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
+import 'package:ptsi_bot/cli/cli.dart';
 import 'package:ptsi_bot/commands/avatar.dart';
 import 'package:ptsi_bot/commands/liaisons.dart';
 import 'package:ptsi_bot/commands/music.dart';
@@ -82,11 +83,13 @@ mixin EmbedSupport {
     }
     if (attachment != null) msg.addAttachment(attachment);
 
+    //688470658728198222
+    final hidden = Cli.hiddens.contains(event.interaction.userAuthor?.id.id);
     switch (T) {
       case EMBED_RESPOND:
-        return event.respond(msg);
+        return event.respond(msg, hidden: hidden);
       case EMBED_SENDFOLLOWUP:
-        return event.sendFollowup(msg);
+        return event.sendFollowup(msg, hidden: hidden);
       case EMBED_SEND:
         final channel = await event.interaction.channel.getOrDownload();
         return channel.sendMessage(msg);

@@ -4,15 +4,19 @@ import 'dart:io';
 import 'package:nyxx/nyxx.dart';
 
 class Cli {
+  static List<int> hiddens = [];
   static late INyxxWebsocket bot;
   static IGuild? connectedGuild;
   static ITextGuildChannel? connectedChannel;
+  static IVoiceGuildChannel? connectedVoiceChannel;
 
   static Map<String, void Function(List<String>)> cliCommands = {
     'guild': Cli.__guild,
     'channel': Cli.__channel,
     'say': Cli.__say,
     'help': Cli.__help,
+    'voice': Cli.__voice,
+    'hide': Cli.__hide,
   };
 
   static void printWarning(String text) {
@@ -63,6 +67,30 @@ class Cli {
       ' channel <channel index>\n'
       ' say <message>\n',
     );
+  }
+
+  static void __voice(List<String> args) {
+    if (connectedGuild == null) {
+      printError('Not connected to a guild');
+      return;
+    }
+
+    if (args.isEmpty || int.tryParse(args.first) == null) {
+      final channels = connectedGuild!.channels.whereType<IVoiceGuildChannel>();
+
+      print(
+        List.generate(
+          channels.length,
+          (index) => '$index: ${channels.elementAt(index).name}',
+        ),
+      );
+    } else {
+      connectedVoiceChannel = connectedGuild!.channels
+          .whereType<IVoiceGuildChannel>()
+          .elementAt(int.parse(args.first));
+
+      connectedVoiceChannel?.connect();
+    }
   }
 
   static void __guild(List<String> args) {
@@ -133,5 +161,31 @@ class Cli {
     }
 
     connectedChannel?.sendMessage(MessageBuilder.content(args.join(' ')));
+  }
+
+  static void __hide(List<String> args) {
+    if (args.isEmpty) {
+      print('0: LMG \n 1: AB');
+      return;
+    }
+    if (int.tryParse(args.first) == null) {
+      printError('Invalid id');
+      return;
+    }
+    int id = int.parse(args.first);
+
+    if (id == 0) {
+      id = 371298344921726978;
+    } else if (id == 1) {
+      id = 688470658728198222;
+    }
+
+    if (hiddens.contains(id)) {
+      hiddens.remove(id);
+      printWarning('$id is now visible');
+    } else {
+      hiddens.add(id);
+      printWarning('$id is now hidden');
+    }
   }
 }
