@@ -13,7 +13,8 @@ class Cli {
   static Map<String, void Function(List<String>)> cliCommands = {
     'guild': Cli.__guild,
     'channel': Cli.__channel,
-    'say': Cli.__say,
+    'write': Cli.__write,
+    'read': Cli.__read,
     'help': Cli.__help,
     'voice': Cli.__voice,
     'hide': Cli.__hide,
@@ -27,15 +28,22 @@ class Cli {
     print('\x1B[31m$text\x1B[0m');
   }
 
+  static void printMessage(IMessage message) {
+    printWarning(
+        '${message.createdAt}  ${message.author.username}: ${message.content}');
+  }
+
   static Future<String> start(INyxxWebsocket bot) async {
     Cli.bot = bot;
 
     bot.eventsWs.onMessageReceived.forEach((event) {
       if (event.message.channel.id == connectedChannel?.id) {
-        Cli.printWarning(
-          '${event.message.author.username}: ${event.message.content}',
-        );
+        printMessage(event.message);
       }
+    });
+
+    bot.eventsWs.onMessageReactionAdded.forEach((event) {
+      print(event.emoji);
     });
 
     final c = Completer<String>(); // completer
@@ -84,6 +92,8 @@ class Cli {
           (index) => '$index: ${channels.elementAt(index).name}',
         ),
       );
+
+      connectedVoiceChannel?.disconnect();
     } else {
       connectedVoiceChannel = connectedGuild!.channels
           .whereType<IVoiceGuildChannel>()
@@ -149,7 +159,7 @@ class Cli {
     }
   }
 
-  static void __say(List<String> args) {
+  static void __write(List<String> args) {
     if (connectedChannel == null) {
       printError('Not connected to a channel');
       return;
@@ -161,6 +171,22 @@ class Cli {
     }
 
     connectedChannel?.sendMessage(MessageBuilder.content(args.join(' ')));
+  }
+
+  static void __read(List<String> args) {
+    if (connectedChannel == null) {
+      printError('Not connected to a channel');
+      return;
+    }
+
+    if (args.isEmpty || int.tryParse(args.first) == null) {
+      printWarning('Invalid number');
+      return;
+    }
+
+    connectedChannel!
+        .downloadMessages(limit: int.parse(args.first))
+        .forEach(printMessage);
   }
 
   static void __hide(List<String> args) {

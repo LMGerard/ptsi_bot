@@ -11,6 +11,7 @@ import 'package:ptsi_bot/commands/quizz.dart';
 import 'package:ptsi_bot/commands/ronan.dart';
 import 'package:ptsi_bot/commands/stop.dart';
 import 'package:ptsi_bot/commands/test.dart';
+import 'package:ptsi_bot/commands/pgcd.dart';
 import 'package:ptsi_bot/utils/color.dart';
 
 final List<Command> commands = [
@@ -22,6 +23,7 @@ final List<Command> commands = [
   Quizz(),
   Avatar(),
   Liaisons(),
+  Pgcd(),
 ];
 
 mixin EMBED_SENDFOLLOWUP {}
@@ -83,7 +85,6 @@ mixin EmbedSupport {
     }
     if (attachment != null) msg.addAttachment(attachment);
 
-    //688470658728198222
     final hidden = Cli.hiddens.contains(event.interaction.userAuthor?.id.id);
     switch (T) {
       case EMBED_RESPOND:

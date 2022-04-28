@@ -14,9 +14,6 @@ const TOKENUSELESS =
 
 final bot = NyxxFactory.createNyxxWebsocket(TOKEN, GatewayIntents.all);
 
-IGuild? connectedGuild;
-ITextGuildChannel? connectedChannel;
-
 void main(List<String> arguments) async {
   bot
     ..registerPlugin(Logging())
