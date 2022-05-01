@@ -100,7 +100,7 @@ class Quizz extends Command with HasButton {
 
     for (int i = 1; i <= 4; i++) {
       final prop = props.removeAt(0);
-      text += '\n$i. $prop';
+      text += '\n$i. ${prop.replaceRange(0, 3, '')}';
 
       msg.addComponent(ButtonBuilder(
         '',
