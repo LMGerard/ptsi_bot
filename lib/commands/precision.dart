@@ -12,7 +12,7 @@ class Precision extends Command {
       : super('precision', 'Write the sentence as fast as you can.', []);
 
   @override
-  FutureOr execute(event) async {
+  Future execute(event) async {
     final r = Random();
     final text =
         Iterable.generate(3, (_) => nouns.elementAt(r.nextInt(nouns.length)))

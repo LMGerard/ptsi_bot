@@ -16,7 +16,7 @@ class Avatar extends Command {
         ]);
 
   @override
-  FutureOr execute(ISlashCommandInteractionEvent event) async {
+  Future execute(ISlashCommandInteractionEvent event) async {
     final userId = event.interaction.getArg('user');
 
     final user =

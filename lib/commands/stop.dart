@@ -5,7 +5,7 @@ class Stop extends Command {
   Stop() : super("stop", "Stops the bot", []);
 
   @override
-  FutureOr execute(event) {
-    sendEmbed<EMBED_RESPOND>(event, text: 'Bot stopped !');
+  Future execute(event) {
+    return sendEmbed<EMBED_RESPOND>(event, text: 'Bot stopped !');
   }
 }

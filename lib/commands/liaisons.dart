@@ -63,7 +63,7 @@ class Liaisons extends Command {
   }
 
   @override
-  FutureOr execute(event) {
+  Future execute(event) {
     if (event.args.isEmpty) return quizz(event);
 
     switch (event.args.first.name) {
@@ -72,9 +72,10 @@ class Liaisons extends Command {
       case 'answer':
         return answer(event);
     }
+    return Future.error('');
   }
 
-  FutureOr show(ISlashCommandInteractionEvent event) {
+  Future show(ISlashCommandInteractionEvent event) {
     final linkName = event.getArg('show').value;
 
     final link = Liaisons.links[linkName]!;
@@ -83,14 +84,14 @@ class Liaisons extends Command {
       'liaisons.png',
     );
 
-    sendEmbed<EMBED_RESPOND>(
+    return sendEmbed<EMBED_RESPOND>(
       event,
       text: 'Voici la liaison $linkName',
       attachment: bytes,
     );
   }
 
-  FutureOr answer(ISlashCommandInteractionEvent event) {
+  Future answer(ISlashCommandInteractionEvent event) {
     final user = event.interaction.userAuthor;
 
     if (user == null) return event.acknowledge();
@@ -110,14 +111,14 @@ class Liaisons extends Command {
         text: "Mauvaise réponse ! C'est une liaison $linkName !",
       );
     } else {
-      sendEmbed<EMBED_RESPOND>(
+      return sendEmbed<EMBED_RESPOND>(
         event,
         text: "Bravo ! C'est bien une liaison $linkName !",
       );
     }
   }
 
-  FutureOr quizz(ISlashCommandInteractionEvent event) {
+  Future quizz(ISlashCommandInteractionEvent event) {
     final user = event.interaction.userAuthor;
     if (user == null) return event.acknowledge();
 
@@ -132,7 +133,7 @@ class Liaisons extends Command {
 
     games['$user'] = lEntry.key;
 
-    sendEmbed<EMBED_RESPOND>(
+    return sendEmbed<EMBED_RESPOND>(
       event,
       text: 'Quelle est cette liaison ? Réponds avec une commande !',
       attachment: bytes,

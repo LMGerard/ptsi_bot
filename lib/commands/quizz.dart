@@ -29,7 +29,7 @@ class Quizz extends Command with HasButton {
         ]);
 
   @override
-  FutureOr execute(event) async {
+  Future execute(event) async {
     if (_questionsIds.isEmpty) {
       _questionsIds.addAll(await getRandomQuestionsId());
     }

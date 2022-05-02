@@ -6,15 +6,15 @@ import 'command.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart';
 
-class Ronan extends Command with HasMultiSelect {
+class Mathematix extends Command with HasMultiSelect {
   static Map<String, dynamic>? tree;
-  Ronan() : super("ronan", "Access mathematics courses.", []);
+  Mathematix() : super("ronan", "Access mathematics courses.", []);
 
   static const url = 'http://ronan.lauvergnat.fr/Enseignements_actuels_RL.html';
   static const dlUrl = 'http://ronan.lauvergnat.fr/Enseignement/2021-2022/';
 
   @override
-  FutureOr execute(event) async {
+  Future execute(event) async {
     await updateTree();
 
     final options = tree!.keys.map((e) => MultiselectOptionBuilder(e, e));
@@ -41,8 +41,7 @@ class Ronan extends Command with HasMultiSelect {
         'Ronan0': multiselectHandler,
       };
 
-  Future<void> multiselectHandler(
-      IMultiselectInteractionEvent event) async {
+  Future<void> multiselectHandler(IMultiselectInteractionEvent event) async {
     await event.acknowledge();
     if (tree == null) return;
     final choice = event.interaction.values.first;
@@ -90,7 +89,7 @@ class Ronan extends Command with HasMultiSelect {
   }
 
   static Future updateTree() async {
-    final res = await http.get(Uri.parse(Ronan.url));
+    final res = await http.get(Uri.parse(Mathematix.url));
 
     final parsed = parse(res.body); // Parse html body
 
@@ -141,6 +140,6 @@ class Ronan extends Command with HasMultiSelect {
       }
     }
 
-    Ronan.tree = tree;
+    Mathematix.tree = tree;
   }
 }

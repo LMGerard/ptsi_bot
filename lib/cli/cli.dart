@@ -2,6 +2,25 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:nyxx/nyxx.dart';
+import 'package:nyxx_interactions/nyxx_interactions.dart';
+import 'package:ptsi_bot/commands/toilettes.dart';
+
+const TOKEN = "OTAxNzgzNzIzMTEwOTY1MzE4.YXU5iQ.JUiGtUC5YuEbIZPRa0uN9BqLg5c";
+const TOKENUSELESS =
+    "ODAyNjk0MTk3NDYyODI3MDE5.YAy9Og.5UlqjgRPlBSg7tNXD8oTy_AeJLI";
+
+void main() {
+  final bot = NyxxFactory.createNyxxWebsocket(TOKEN, GatewayIntents.all);
+  bot
+    ..registerPlugin(Logging())
+    ..registerPlugin(CliIntegration())
+    ..registerPlugin(IgnoreExceptions())
+    ..connect();
+
+  Cli.start(bot);
+  final interactions = IInteractions.create(WebsocketInteractionBackend(bot));
+  interactions.registerSlashCommand(Toilettes());
+}
 
 class Cli {
   static List<int> hiddens = [];

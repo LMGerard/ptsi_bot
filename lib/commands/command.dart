@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
 import 'package:ptsi_bot/cli/cli.dart';
@@ -8,25 +7,27 @@ import 'package:ptsi_bot/commands/liaisons.dart';
 import 'package:ptsi_bot/commands/music.dart';
 import 'package:ptsi_bot/commands/precision.dart';
 import 'package:ptsi_bot/commands/quizz.dart';
-import 'package:ptsi_bot/commands/ronan.dart';
+import 'package:ptsi_bot/commands/mathematix.dart';
 import 'package:ptsi_bot/commands/stop.dart';
 import 'package:ptsi_bot/commands/test.dart';
 import 'package:ptsi_bot/commands/pgcd.dart';
+import 'package:ptsi_bot/commands/toilettes.dart';
 import 'package:ptsi_bot/utils/color.dart';
 
 final List<Command> commands = [
   Stop(),
   Music(),
   Precision(),
-  Ronan(),
+  Mathematix(),
   Test(),
   Quizz(),
   Avatar(),
   Liaisons(),
   Pgcd(),
+  Toilettes(),
 ];
 
-mixin EMBED_SENDFOLLOWUP {}
+mixin EMBED_FOLLOWUP {}
 mixin EMBED_RESPOND {}
 mixin EMBED_SEND {}
 mixin EMBED_EDIT_RESPONSE {}
@@ -37,11 +38,16 @@ abstract class Command extends SlashCommandBuilder with EmbedSupport {
     if (!options.any((e) =>
         e.type == CommandOptionType.subCommand ||
         e.type == CommandOptionType.subCommandGroup)) {
-      registerHandler(execute);
+      registerHandler((event) async {
+        execute(event).catchError((e) {
+          print(e);
+          sendEmbed<EMBED_SEND>(event, text: 'An error occured:\n$e');
+        });
+      });
     }
   }
 
-  FutureOr execute(ISlashCommandInteractionEvent event);
+  Future execute(ISlashCommandInteractionEvent event);
 }
 
 abstract class SubCommand extends CommandOptionBuilder with EmbedSupport {
@@ -89,7 +95,7 @@ mixin EmbedSupport {
     switch (T) {
       case EMBED_RESPOND:
         return event.respond(msg, hidden: hidden);
-      case EMBED_SENDFOLLOWUP:
+      case EMBED_FOLLOWUP:
         return event.sendFollowup(msg, hidden: hidden);
       case EMBED_SEND:
         final channel = await event.interaction.channel.getOrDownload();

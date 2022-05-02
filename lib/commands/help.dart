@@ -19,7 +19,7 @@ class Help extends Command {
         ]);
 
   @override
-  FutureOr execute(event) {
+  Future execute(event) {
     if (event.args.isEmpty) {
       String text =
           commands.map((e) => "__${e.name}__ - ${e.description}").join('\n');

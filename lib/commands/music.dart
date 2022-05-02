@@ -18,7 +18,9 @@ class Music extends Command {
         ]);
 
   @override
-  FutureOr execute(ISlashCommandInteractionEvent event) {}
+  Future execute(ISlashCommandInteractionEvent event) {
+    return Future.error('Not implemented');
+  }
 }
 
 class _MusicJoin extends SubCommand {

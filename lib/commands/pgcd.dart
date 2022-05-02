@@ -21,7 +21,7 @@ class Pgcd extends Command {
         ]);
 
   @override
-  FutureOr execute(ISlashCommandInteractionEvent event) async {
+  Future execute(ISlashCommandInteractionEvent event) async {
     final int1 = event.args.first.value as int;
     final int2 = event.args.last.value as int;
 
