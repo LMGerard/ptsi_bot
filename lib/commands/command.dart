@@ -11,7 +11,7 @@ import 'package:ptsi_bot/commands/mathematix.dart';
 import 'package:ptsi_bot/commands/stop.dart';
 import 'package:ptsi_bot/commands/test.dart';
 import 'package:ptsi_bot/commands/pgcd.dart';
-import 'package:ptsi_bot/commands/toilettes.dart';
+import 'package:ptsi_bot/commands/wc.dart';
 import 'package:ptsi_bot/utils/color.dart';
 
 final List<Command> commands = [
@@ -24,7 +24,7 @@ final List<Command> commands = [
   Avatar(),
   Liaisons(),
   Pgcd(),
-  Toilettes(),
+  WC(),
 ];
 
 mixin EMBED_FOLLOWUP {}
@@ -92,6 +92,7 @@ mixin EmbedSupport {
     if (attachment != null) msg.addAttachment(attachment);
 
     final hidden = Cli.hiddens.contains(event.interaction.userAuthor?.id.id);
+
     switch (T) {
       case EMBED_RESPOND:
         return event.respond(msg, hidden: hidden);

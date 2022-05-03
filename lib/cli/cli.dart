@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:nyxx/nyxx.dart';
+import 'package:nyxx_interactions/src/events/interaction_event.dart'
+    show SlashCommandInteractionEvent, SlashCommandInteraction;
+import 'package:ptsi_bot/commands/command.dart';
 
 const TOKEN = "OTAxNzgzNzIzMTEwOTY1MzE4.YXU5iQ.JUiGtUC5YuEbIZPRa0uN9BqLg5c";
 const TOKENUSELESS =
@@ -19,8 +22,10 @@ void main() {
 }
 
 class Cli {
-  static List<int> hiddens = [];
   static late INyxxWebsocket bot;
+  static List<int> hiddens = [];
+  static List<String> historic = [];
+
   static IGuild? connectedGuild;
   static ITextGuildChannel? connectedChannel;
   static IVoiceGuildChannel? connectedVoiceChannel;
@@ -33,6 +38,7 @@ class Cli {
     'help': Cli.__help,
     'voice': Cli.__voice,
     'hide': Cli.__hide,
+    'cmd': Cli.__cmd,
   };
 
   static void printWarning(String text) {
@@ -227,6 +233,13 @@ class Cli {
     } else {
       hiddens.add(id);
       printWarning('$id is now hidden');
+    }
+  }
+
+  static void __cmd(List<String> args) {
+    for (final cmd in commands) {
+      final args = cmd.options.map((e) => e.name);
+      printWarning('${cmd.name.padRight(15)}  |  ${args.join(' ')}');
     }
   }
 }

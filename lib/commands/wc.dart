@@ -6,11 +6,11 @@ import 'package:vector_math/vector_math.dart';
 
 import 'command.dart';
 
-class Toilettes extends Command {
+class WC extends Command {
   final url =
       'https://opendata.paris.fr/api/records/1.0/search/?dataset=sanisettesparis&q=&facet=type&facet=statut&facet=arrondissement&facet=horaire&facet=acces_pmr&facet=relais_bebe&refine.arrondissement=%';
-  Toilettes()
-      : super('toilettes', 'Rencontre les toilettes de ta région.', [
+  WC()
+      : super('wc', 'Rencontre les toilettes de ta région.', [
           CommandOptionBuilder(
             CommandOptionType.integer,
             'arrondissement',

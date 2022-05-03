@@ -18,7 +18,6 @@ class Avatar extends Command {
   @override
   Future execute(ISlashCommandInteractionEvent event) async {
     final userId = event.interaction.getArg('user');
-
     final user =
         await (event.client as INyxxWebsocket).fetchUser(Snowflake(userId));
 

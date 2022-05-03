@@ -21,8 +21,6 @@ void main(List<String> arguments) async {
     ..registerPlugin(IgnoreExceptions())
     ..connect();
 
-  Cli.start(bot);
-
   bot.onReady.first.then(
     (value) {
       Music.cluster = ICluster.createCluster(bot, bot.appId);
@@ -38,6 +36,8 @@ void main(List<String> arguments) async {
   );
 
   final interactions = IInteractions.create(WebsocketInteractionBackend(bot));
+  Cli.start(bot);
+
   commands.add(Help()); // Conflict issues because it accesses commands list
   for (final command in commands) {
     interactions.registerSlashCommand(command);
