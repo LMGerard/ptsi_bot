@@ -1,12 +1,13 @@
-import 'dart:async';
 import 'dart:convert';
+
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
-import 'command.dart';
+import 'package:ptsi_bot_2/commands.dart';
+import 'package:nyxx_commands/nyxx_commands.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
 
-final emojis = {
+final _emojis = {
   1: UnicodeEmoji('1️⃣'),
   2: UnicodeEmoji('2️⃣'),
   3: UnicodeEmoji('3️⃣'),
@@ -16,60 +17,37 @@ final emojis = {
   'next': UnicodeEmoji('➡️'),
 };
 
-class Quizz extends Command with HasButton {
+class Quizz extends Command with hasButton {
   final List<int> _questionsIds = [];
-  Quizz()
-      : super('quizz', 'Quizz it up !', [
-          // CommandOptionBuilder(
-          //   CommandOptionType.string,
-          //   'theme',
-          //   'theme',
-          //   choices: themes.map((e) => ArgChoiceBuilder(e, e)).toList(),
-          // )
-        ]);
+
+  Quizz() : super('quizz', 'Quizz it up !');
 
   @override
-  Future execute(event) async {
-    if (_questionsIds.isEmpty) {
-      _questionsIds.addAll(await getRandomQuestionsId());
-    }
+  Function get execute => (IChatContext context) => sendQuestion(context);
 
-    sendQuestion(event);
-  }
-
-  Future<_Question?> getQuestion(int id) async {
+  Future<_Question?> _getQuestion(int id) async {
     final res = await http.post(
-        Uri.https('www.openquizzdb.org', 'download.php'),
-        headers: headers,
-        body: 'q=$id',
-        encoding: Encoding.getByName('application/x-www-form-urlencoded'));
-    final result = parser.parse(res.body).getElementById('clip_txt')?.text;
+      Uri.https('www.openquizzdb.org', 'download.php'),
+      headers: headers,
+      body: 'q=$id',
+      encoding: Encoding.getByName('application/x-www-form-urlencoded'),
+    );
 
-    if (result == null) return null;
-    return _Question.fromHtml(result, id);
+    final result = parser.parse(res.body).getElementById('clip_txt')?.text;
+    return result == null ? null : _Question.fromHtml(result, id);
   }
 
-  Future<Iterable<int>> getRandomQuestionsId() async {
-    final res = await http.post(Uri.https('www.openquizzdb.org', 'random.php'),
-        headers: headers);
+  Future<Iterable<int>> _getRandomQuestionsId() async {
+    final res = await http.post(
+      Uri.https('www.openquizzdb.org', 'random.php'),
+      headers: headers,
+    );
 
     return parser
         .parse(res.body)
         .getElementsByClassName('myid')
         .map((e) => int.parse(e.text));
   }
-
-  // Future<Iterable<int>> getQuestionsIdByTheme(String theme) async {
-  //   final res = await http.post(Uri.https('www.openquizzdb.org', 'random.php'),
-  //       headers: headers,
-  //       body: 'categ=$theme&q=0',
-  //       encoding: Encoding.getByName('application/x-www-form-urlencoded'));
-
-  //   return parser
-  //       .parse(res.body)
-  //       .getElementsByClassName('myid')
-  //       .map((e) => int.parse(e.text));
-  // }
 
   @override
   Map<String, Function(IButtonInteractionEvent p1)> get buttons => {
@@ -81,13 +59,17 @@ class Quizz extends Command with HasButton {
         'next': next,
       };
 
-  void next(event) => sendQuestion(event);
+  void next(IButtonInteractionEvent event) => sendQuestion(event);
 
-  void sendQuestion(IInteractionEventWithAcknowledge event) async {
-    final question = await getQuestion(_questionsIds.removeLast());
+  void sendQuestion(context) async {
+    if (_questionsIds.isEmpty) {
+      _questionsIds.addAll(await _getRandomQuestionsId());
+    }
+
+    final question = await _getQuestion(_questionsIds.removeLast());
 
     if (question == null) {
-      sendEmbed<EMBED_RESPOND>(event, text: 'No question found');
+      respond(context, text: 'No question found');
       return;
     }
 
@@ -100,26 +82,26 @@ class Quizz extends Command with HasButton {
 
     for (int i = 1; i <= 4; i++) {
       final prop = props.removeAt(0);
-      text += '\n$i. ${prop.replaceRange(0, 3, '')}';
+      text += '\n$i. $prop';
 
       msg.addComponent(ButtonBuilder(
         '',
         prop == question.prop1 ? 'quizz0' : quizzes.removeAt(0),
         ButtonStyle.secondary,
-        emoji: emojis[i],
+        emoji: _emojis[i],
       ));
     }
     text += '\n```';
 
-    sendEmbed<EMBED_RESPOND>(
-      event,
+    respond(
+      context,
       title: ' - ${question.theme} - ${question.id}',
-      componentRowBuilders: [msg],
+      rows: [msg],
       text: text,
     );
   }
 
-  answerSelected(IButtonInteractionEvent event) async {
+  Future<void> answerSelected(IButtonInteractionEvent event) async {
     final msg = event.interaction.message;
 
     if (msg == null) return event.acknowledge();
@@ -127,20 +109,20 @@ class Quizz extends Command with HasButton {
     final row = ComponentRowBuilder();
     if (event.interaction.customId == 'quizz0') {
       row.addComponent(ButtonBuilder('', 'quizz0', ButtonStyle.success,
-          emoji: emojis['right'], disabled: true));
+          emoji: _emojis['right'], disabled: true));
     } else {
       row.addComponent(ButtonBuilder('', 'quizz0', ButtonStyle.danger,
-          emoji: emojis['wrong'], disabled: true));
+          emoji: _emojis['wrong'], disabled: true));
     }
     row.addComponent(ButtonBuilder('next', 'next', ButtonStyle.primary,
-        emoji: emojis['next']));
+        emoji: _emojis['next']));
 
     final info = msg.embeds.first.title!.split('-');
-    final question = await getQuestion(int.parse(info.last));
+    final question = await _getQuestion(int.parse(info.last));
 
-    sendEmbed<EMBED_RESPOND>(
+    respond(
       event,
-      componentRowBuilders: [row],
+      rows: [row],
       text: '**${question?.question}**\n```diff\n+${question?.prop1}\n```',
     );
   }
@@ -156,10 +138,10 @@ class _Question {
   final String prop4;
 
   _Question(this.question, this.theme, this.id, List<String> answers)
-      : prop1 = answers[0],
-        prop2 = answers[1],
-        prop3 = answers[2],
-        prop4 = answers[3];
+      : prop1 = answers[0].substring(3),
+        prop2 = answers[1].substring(3),
+        prop3 = answers[2].substring(3),
+        prop4 = answers[3].substring(3);
 
   factory _Question.fromHtml(String html, int id) {
     final data = html.split('\n');

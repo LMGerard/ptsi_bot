@@ -1,44 +1,32 @@
-import 'dart:async';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:nyxx_interactions/nyxx_interactions.dart';
 import 'package:vector_math/vector_math.dart';
-
-import 'command.dart';
+import 'package:ptsi_bot_2/commands.dart';
+import 'package:nyxx_commands/nyxx_commands.dart';
+import 'package:http/http.dart' as http;
 
 class WC extends Command {
   final url =
       'https://opendata.paris.fr/api/records/1.0/search/?dataset=sanisettesparis&q=&facet=type&facet=statut&facet=arrondissement&facet=horaire&facet=acces_pmr&facet=relais_bebe&refine.arrondissement=%';
-  WC()
-      : super('wc', 'Rencontre les toilettes de ta région.', [
-          CommandOptionBuilder(
-            CommandOptionType.integer,
-            'arrondissement',
-            'arrondissement',
-            required: true,
-          )
-        ]);
+  WC() : super('wc', 'Rencontre les toilettes de ta région;');
 
   @override
-  Future execute(event) async {
-    final arrondissement = event.getArg('arrondissement').value as int;
-    if (arrondissement < 1 || arrondissement > 20) {
-      return sendEmbed<EMBED_SEND>(event, text: 'Invalid arrondissement');
-    }
-    final arr = '75' + '$arrondissement'.padLeft(3, '0');
-    final response = await http.get(Uri.parse(url.replaceFirst('%', arr)));
-    final dataset = (jsonDecode(response.body)['records'] as List)
-        .cast<Map<String, dynamic>>();
+  Function get execute => (IChatContext context, int arrondissement) async {
+        if (arrondissement < 1 || arrondissement > 20) {
+          return respond(context, text: 'Invalid arrondissement');
+        }
+        final arr = '75${'$arrondissement'.padLeft(3, '0')}';
+        final response = await http.get(Uri.parse(url.replaceFirst('%', arr)));
+        final dataset = (jsonDecode(response.body)['records'] as List)
+            .cast<Map<String, dynamic>>();
 
-    final toilettes = dataset.map(__Toilette.new);
+        final toilettes = dataset.map(__Toilette.new);
 
-    sendEmbed<EMBED_RESPOND>(
-      event,
-      text:
-          "Voici les toilettes publiques de l'arrondissement $arrondissement:\n\n" +
-              toilettes.map((e) => e.toString()).join('\n\n'),
-    );
-  }
+        respond(
+          context,
+          text:
+              "Voici les toilettes publiques de l'arrondissement $arrondissement:\n\n${toilettes.map((e) => e.toString()).join('\n\n')}",
+        );
+      };
 }
 
 class __Toilette {

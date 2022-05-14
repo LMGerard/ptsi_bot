@@ -1,143 +1,100 @@
-import 'dart:async';
 import 'package:nyxx/nyxx.dart';
-import 'package:nyxx_interactions/nyxx_interactions.dart';
-import 'command.dart';
 import 'package:nyxx_lavalink/nyxx_lavalink.dart';
+import 'package:ptsi_bot_2/commands.dart';
+import 'package:nyxx_commands/nyxx_commands.dart';
 
-class Music extends Command {
+class Music extends CommandGroup {
   static late final ICluster cluster;
 
   Music()
-      : super('music', 'Obviously a music player...', [
-          _MusicJoin(),
-          _MusicPlay(),
-          _MusicPause(),
-          _MusicResume(),
-          _MusicSkip(),
-          _MusicStop(),
+      : super('music', 'A music player. Obviously...', [
+          _Play(),
+          _Pause(),
+          _Resume(),
+          _Stop(),
+          _Clear(),
         ]);
 
-  @override
-  Future execute(ISlashCommandInteractionEvent event) {
-    return Future.error('Not implemented');
-  }
-}
-
-class _MusicJoin extends SubCommand {
-  _MusicJoin() : super('join', 'Join a voice channel');
-
-  @override
-  Future execute(ISlashCommandInteractionEvent event) async {
-    final channel = await event.interaction.memberAuthor?.voiceState?.channel
-        ?.getOrDownload() as IVoiceGuildChannel?;
-
-    if (channel == null) {
-      event.respond(MessageBuilder.content('You are not in a voice channel'));
-      return;
-    }
-
-    channel.connect();
-
-    sendEmbed<EMBED_RESPOND>(event, text: 'Connected to #${channel.name}');
-  }
-}
-
-class _MusicPlay extends SubCommand {
-  _MusicPlay()
-      : super('play', 'Play a song', options: [
-          CommandOptionBuilder(
-            CommandOptionType.string,
-            'keywords',
-            'keywords to find your music',
-            required: true,
-          )
-        ]);
-
-  @override
-  Future execute(ISlashCommandInteractionEvent event) async {
-    final id = event.interaction.guild?.id;
-    if (id == null) {
-      return event.respond(MessageBuilder.content('An error occured.'));
-    }
-
-    final node = Music.cluster.getOrCreatePlayerNode(id);
-
-    // search for given query using lava link
-    final searchResults = await node.autoSearch(
-      event.getArg('keywords').value.toString(),
-    );
-    if (searchResults.tracks.isEmpty) {
-      return event.respond(MessageBuilder.content('No results found'));
-    }
-    // add found song to queue and play
-    node.play(id, searchResults.tracks[0]).queue();
-
-    sendEmbed<EMBED_RESPOND>(
-      event,
-      text: 'Added ${searchResults.tracks[0].info?.title} to queue',
+  static init(INyxxWebsocket bot) {
+    Music.cluster = ICluster.createCluster(bot, bot.appId);
+    Music.cluster.addNode(
+      NodeOptions(
+        host: 'lava.link',
+        port: 80,
+        password: "password",
+        ssl: false,
+      ),
     );
   }
+
+  static INode node(Snowflake guildId) =>
+      Music.cluster.getOrCreatePlayerNode(guildId);
 }
 
-class _MusicPause extends SubCommand {
-  _MusicPause() : super('pause', 'Pause the current song');
-
+class _Play extends SubCommand {
+  _Play() : super('play', 'Play a song.');
   @override
-  Future execute(ISlashCommandInteractionEvent event) async {
-    final id = event.interaction.guild?.id;
-    if (id == null) {
-      return event.respond(MessageBuilder.content('An error occured.'));
-    }
-    final node = Music.cluster.getOrCreatePlayerNode(id);
+  Function get execute => (IChatContext context, String url) async {
+        final channel = await context.member?.voiceState?.channel
+            ?.getOrDownload() as IVoiceGuildChannel?;
 
-    node.pause(id);
-    sendEmbed<EMBED_RESPOND>(event, text: 'Music Paused');
-  }
+        if (channel == null) {
+          return respond(context, text: 'You have to be in a voice channel.');
+        }
+
+        final node = Music.node(context.guild!.id);
+
+        final searchResults = await node.autoSearch(url);
+        if (searchResults.tracks.isEmpty) {
+          return respond(context, text: 'No result found.');
+        }
+
+        channel.connect();
+        // add found song to queue and play
+        node.play(context.guild!.id, searchResults.tracks[0]).queue();
+
+        respond(
+          context,
+          text: 'Added ${searchResults.tracks[0].info?.title} to queue',
+        );
+      };
 }
 
-class _MusicResume extends SubCommand {
-  _MusicResume() : super('resume', 'Resume the current song');
+class _Pause extends SubCommand {
+  _Pause() : super('pause', 'Pause the music.');
   @override
-  Future execute(ISlashCommandInteractionEvent event) async {
-    final id = event.interaction.guild?.id;
-    if (id == null) {
-      return event.respond(MessageBuilder.content('An error occured.'));
-    }
-    final node = Music.cluster.getOrCreatePlayerNode(id);
+  Function get execute => (IChatContext context) async {
+        Music.node(context.guild!.id).pause(context.guild!.id);
 
-    node.resume(id);
-    sendEmbed<EMBED_RESPOND>(event, text: 'Music Resumed');
-  }
+        respond(context, text: "Music paused");
+      };
 }
 
-class _MusicSkip extends SubCommand {
-  _MusicSkip() : super('skip', 'Skip the current song');
-
+class _Resume extends SubCommand {
+  _Resume() : super('resume', 'Resume the music.');
   @override
-  Future execute(ISlashCommandInteractionEvent event) async {
-    final id = event.interaction.guild?.id;
-    if (id == null) {
-      return event.respond(MessageBuilder.content('An error occured.'));
-    }
-    final node = Music.cluster.getOrCreatePlayerNode(id);
+  Function get execute => (IChatContext context) async {
+        Music.node(context.guild!.id).resume(context.guild!.id);
 
-    node.skip(id);
-    sendEmbed<EMBED_RESPOND>(event, text: 'Music Skipped');
-  }
+        respond(context, text: "Music paused");
+      };
 }
 
-class _MusicStop extends SubCommand {
-  _MusicStop() : super('stop', 'Stop the current song');
-
+class _Stop extends SubCommand {
+  _Stop() : super('stop', 'Stop the music.');
   @override
-  Future execute(ISlashCommandInteractionEvent event) async {
-    final id = event.interaction.guild?.id;
-    if (id == null) {
-      return event.respond(MessageBuilder.content('An error occured.'));
-    }
-    final node = Music.cluster.getOrCreatePlayerNode(id);
+  Function get execute => (IChatContext context) async {
+        Music.node(context.guild!.id).stop(context.guild!.id);
 
-    node.stop(id);
-    sendEmbed<EMBED_RESPOND>(event, text: 'Music Stopped');
-  }
+        respond(context, text: "Music paused");
+      };
+}
+
+class _Clear extends SubCommand {
+  _Clear() : super('skip', 'Skip the music.');
+  @override
+  Function get execute => (IChatContext context) async {
+        Music.node(context.guild!.id).skip(context.guild!.id);
+        respond(context, text: "Music paused");
+      };
 }

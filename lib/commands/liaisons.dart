@@ -1,142 +1,158 @@
-import 'dart:async';
 import 'dart:io';
-import 'dart:math';
-import 'package:nyxx/nyxx.dart';
-import 'package:nyxx_interactions/nyxx_interactions.dart';
-import 'package:ptsi_bot/utils/path.dart';
-import 'command.dart';
 import 'package:image/image.dart';
+import 'package:nyxx/nyxx.dart';
+import 'package:nyxx_commands/nyxx_commands.dart';
+import 'package:ptsi_bot_2/commands.dart';
+import 'package:nyxx_interactions/nyxx_interactions.dart';
 import 'package:path/path.dart' as path;
+import 'package:ptsi_bot_2/settings.dart';
 
-final FILE_PATH = path.join(PATH, 'resources', 'liaisons.jpg');
+final filePath = path.join(PATH, 'resources', 'liaisons.jpg');
 
 class Liaisons extends Command {
-  static final Map<String, List<Image>> links = {
-    'Glissière': [],
-    'Plan': [],
-    'Pivot': [],
-    'Hélicoïdale': [],
-    'Pivot Glissant': [],
-    'Linéaire rectiligne': [],
-    'Rotule à doigts': [],
-    'Rotule': [],
-    'Linéaire Annulaire': [],
-    'Ponctuelle': [],
-  };
-  final Map<String, String> games = {};
-  final Image im = decodeImage(
-    File(FILE_PATH).readAsBytesSync(),
-  )!;
+  final im = decodeImage(File(filePath).readAsBytesSync())!;
+  static final links = [
+    Link('all', 0),
+    Link('Glissière', 1),
+    Link('Plan', 2),
+    Link('Pivot', 3),
+    Link('Hélicoïdale', 4),
+    Link('Pivot Glissant', 5),
+    Link('Linéaire rectiligne', 6),
+    Link('Rotule à doigts', 7),
+    Link('Rotule', 8),
+    Link('Linéaire Annulaire', 9),
+    Link('Ponctuelle', 10),
+  ];
 
   Liaisons()
-      : super("liaisons", "révise tes liaisons", [
-          CommandOptionBuilder(
-            CommandOptionType.string,
-            'show',
-            'Show info about liaisons.',
-            choices: links.keys.map((e) => ArgChoiceBuilder(e, e)).toList(),
-          ),
-          CommandOptionBuilder(
-            CommandOptionType.string,
-            'answer',
-            'Show info about liaisons.',
-            choices: links.keys.map((e) => ArgChoiceBuilder(e, e)).toList(),
-          ),
-        ]) {
-    final columns = [349, 1058, 1441];
-    final rows = [172, 396, 638, 854, 1087, 1313, 1537, 1756, 1940, 2190, 2471];
-
-    for (var i = 1; i < rows.length; i++) {
-      final y = rows[i - 1];
-      final height = rows[i] - y;
-
-      final liaison = links.keys.elementAt(i - 1);
-
-      for (var j = 1; j < columns.length; j++) {
-        final x = columns[j - 1];
-        final width = columns[j] - x;
-
-        final imCrop = copyCrop(im, x, y, width, height);
-        links[liaison]!.add(imCrop);
-      }
-    }
-  }
+      : super(
+          'liaisons',
+          'Affiche les liaisons',
+          converters: [linkConverter, linkCaracConverter],
+        );
 
   @override
-  Future execute(event) {
-    if (event.args.isEmpty) return quizz(event);
+  Function get execute => (IChatContext context, Link? link) {
+        if (link == null) {
+          respond(context, text: "Aucune liaison n'est spécifiée");
+        } else {
+          show(context, link, LinkCarac.cinematicTorsor);
+        }
+      };
 
-    switch (event.args.first.name) {
-      case 'show':
-        return show(event);
-      case 'answer':
-        return answer(event);
+  Future show(IChatContext context, Link link, LinkCarac? carac) {
+    late Image im;
+    switch (carac) {
+      case LinkCarac.name:
+        im = link.name;
+        break;
+      case LinkCarac.scheme:
+        im = link.scheme;
+        break;
+      case LinkCarac.cinematicTorsor:
+        im = link.cinematicTorsor;
+        break;
+      case LinkCarac.mecanicTorsor:
+        im = link.mecanicTorsor;
+        break;
+      default:
+        im = link.row;
+        break;
     }
-    return Future.error('');
-  }
 
-  Future show(ISlashCommandInteractionEvent event) {
-    final linkName = event.getArg('show').value;
+    final bytes = AttachmentBuilder.bytes(encodePng(im), 'liaisons.png');
 
-    final link = Liaisons.links[linkName]!;
-    final bytes = AttachmentBuilder.bytes(
-      encodePng(link[0]),
-      'liaisons.png',
-    );
-
-    return sendEmbed<EMBED_RESPOND>(
-      event,
-      text: 'Voici la liaison $linkName',
+    return respond(
+      context,
+      text: 'Voici la liaison ${link.type}',
       attachment: bytes,
     );
   }
+}
 
-  Future answer(ISlashCommandInteractionEvent event) {
-    final user = event.interaction.userAuthor;
+final linkConverter = Converter<Link>(
+  (view, context) {
+    final arg = view.getQuotedWord().toLowerCase();
+    final t = Liaisons.links.where((e) => e.type.toLowerCase() == arg);
+    return t.isEmpty ? null : t.first;
+  },
+  choices: [
+    for (final link in Liaisons.links) ArgChoiceBuilder(link.type, link.type),
+  ],
+);
 
-    if (user == null) return event.acknowledge();
+final linkCaracConverter = Converter<LinkCarac>(
+  (view, context) {
+    final arg = view.getQuotedWord().toLowerCase();
+    final t = LinkCarac.values.where((e) => e.toString().toLowerCase() == arg);
+    return t.isEmpty ? null : t.first;
+  },
+  choices: [
+    for (final act in LinkCarac.values)
+      ArgChoiceBuilder(act.toString(), act.toString()),
+  ],
+);
 
-    final linkName = games['$user'];
+enum LinkCarac { name, scheme, cinematicTorsor, mecanicTorsor }
 
-    if (linkName == null) {
-      return sendEmbed<EMBED_RESPOND>(
-        event,
-        text: "Tu dois participer à un quizz pour utiliser cette commande !",
-      );
-    }
+class Link {
+  final im = decodeImage(File(filePath).readAsBytesSync())!;
 
-    if (linkName != event.getArg('answer').value) {
-      return sendEmbed<EMBED_RESPOND>(
-        event,
-        text: "Mauvaise réponse ! C'est une liaison $linkName !",
-      );
-    } else {
-      return sendEmbed<EMBED_RESPOND>(
-        event,
-        text: "Bravo ! C'est bien une liaison $linkName !",
-      );
-    }
+  static const columns = [349, 1058, 1441, 1855];
+  static const rows = [
+    172,
+    396,
+    638,
+    854,
+    1087,
+    1313,
+    1537,
+    1756,
+    1940,
+    2190,
+    2471,
+  ];
+
+  final String type;
+  final List<Image> images = [];
+  final int _row;
+  Link(this.type, int row) : _row = row;
+
+  void addImage(Image image) => images.add(image);
+
+  Image get row {
+    if (_row == 0) return im;
+    final y = rows[_row - 1];
+
+    return copyCrop(im, 0, y, im.width, rows[_row] - y);
   }
 
-  Future quizz(ISlashCommandInteractionEvent event) {
-    final user = event.interaction.userAuthor;
-    if (user == null) return event.acknowledge();
+  Image get name {
+    if (_row == 0) return copyCrop(im, 96, 0, 349 - 96, im.height);
+    final y = rows[_row - 1];
 
-    final lEntry = links.entries.elementAt(Random().nextInt(links.length));
+    return copyCrop(im, 96, y, 349 - 96, rows[_row] - y);
+  }
 
-    final im = links[lEntry.key]![Random().nextInt(lEntry.value.length)];
+  Image get scheme {
+    if (_row == 0) return copyCrop(im, 349, 0, 1058 - 349, im.height);
+    final y = rows[_row - 1];
 
-    final bytes = AttachmentBuilder.bytes(
-      encodePng(im),
-      'liaisons.png',
-    );
+    return copyCrop(im, 349, y, 1058 - 349, rows[_row] - y);
+  }
 
-    games['$user'] = lEntry.key;
+  Image get cinematicTorsor {
+    if (_row == 0) return copyCrop(im, 1058, 0, 1441 - 1058, im.height);
+    final y = rows[_row - 1];
 
-    return sendEmbed<EMBED_RESPOND>(
-      event,
-      text: 'Quelle est cette liaison ? Réponds avec une commande !',
-      attachment: bytes,
-    );
+    return copyCrop(im, 1058, y, 1441 - 1058, rows[_row] - y);
+  }
+
+  Image get mecanicTorsor {
+    if (_row == 0) return copyCrop(im, 1441, 0, 1855 - 1441, im.height);
+    final y = rows[_row - 1];
+
+    return copyCrop(im, 1441, y, 1855 - 1441, rows[_row] - y);
   }
 }

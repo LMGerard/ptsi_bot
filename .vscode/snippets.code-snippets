@@ -1,0 +1,44 @@
+{
+	"new clean command": {
+		"scope": "dart",
+		"prefix": "cmd",
+		"body": [
+			"import 'package:ptsi_bot_2/commands.dart';",
+			"import 'package:nyxx_commands/nyxx_commands.dart';\n",
+			"class ${1:commandName} extends Command {",
+			"  ${1:commandName}() : super('${2:commandName}', '${3:My incredible description}');\n",
+			"  @override",
+			"  Function get execute => (IChatContext context) async {",
+			"     respond(context, text: 'Hello world!');",
+			"      };",
+			"}",
+		],
+		"description": "Creates a new command from scratch",
+	},
+	"new clean command group": {
+		"scope": "dart",
+		"prefix": "cmd_group",
+		"body": [
+			"import 'package:ptsi_bot_2/commands.dart';",
+			"import 'package:nyxx_commands/nyxx_commands.dart';\n",
+			"class ${1:commandName} extends CommandGroup {",
+			"  ${1:commandName}() : super('${2:commandName}', '${3:My incredible description}', []);\n",
+			"}",
+		],
+		"description": "Creates a new command group from scratch",
+	},
+	"new clean sub command": {
+		"scope": "dart",
+		"prefix": "cmd_sub",
+		"body": [
+			"class ${1:commandName} extends SubCommand {",
+			"  ${1:commandName}() : super('${2:commandName}', '${3:My incredible description}');\n",
+			"  @override",
+			"  Function get execute => (IChatContext context) async {",
+			"     respond(context, text: 'Hello world!');",
+			"      };",
+			"}",
+		],
+		"description": "Creates a new command group from scratch",
+	},
+}
