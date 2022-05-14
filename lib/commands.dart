@@ -101,6 +101,9 @@ abstract class Command extends SupCommand {
   late final ChatCommand _command;
   final List<Converter> converters;
   Function get execute;
+
+  Iterable<String> get args => _command.argumentTypes.map((t) => "$t");
+  String get name => _command.name;
   Command(
     String name,
     String description, {

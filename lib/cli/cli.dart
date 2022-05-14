@@ -2,16 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:nyxx/nyxx.dart';
-import 'package:nyxx_interactions/src/events/interaction_event.dart'
-    show SlashCommandInteractionEvent, SlashCommandInteraction;
-import 'package:ptsi_bot/commands/command.dart';
-
-const TOKEN = "OTAxNzgzNzIzMTEwOTY1MzE4.YXU5iQ.JUiGtUC5YuEbIZPRa0uN9BqLg5c";
-const TOKENUSELESS =
-    "ODAyNjk0MTk3NDYyODI3MDE5.YAy9Og.5UlqjgRPlBSg7tNXD8oTy_AeJLI";
+import 'package:ptsi_bot_2/commands.dart';
+import 'package:ptsi_bot_2/settings.dart' as settings;
 
 void main() {
-  final bot = NyxxFactory.createNyxxWebsocket(TOKEN, GatewayIntents.all);
+  final bot = NyxxFactory.createNyxxWebsocket(
+    settings.uselessToken,
+    GatewayIntents.all,
+  );
   bot
     ..registerPlugin(Logging())
     ..registerPlugin(CliIntegration())
@@ -237,9 +235,8 @@ class Cli {
   }
 
   static void __cmd(List<String> args) {
-    for (final cmd in commands) {
-      final args = cmd.options.map((e) => e.name);
-      printWarning('${cmd.name.padRight(15)}  |  ${args.join(' ')}');
+    for (final cmd in commands.whereType<Command>()) {
+      printWarning('${cmd.name.padRight(15)}  |  ${cmd.args.join(' ')}');
     }
   }
 }
