@@ -27,7 +27,7 @@ class _MusicJoin extends SubCommand {
   _MusicJoin() : super('join', 'Join a voice channel');
 
   @override
-  FutureOr execute(ISlashCommandInteractionEvent event) async {
+  Future execute(ISlashCommandInteractionEvent event) async {
     final channel = await event.interaction.memberAuthor?.voiceState?.channel
         ?.getOrDownload() as IVoiceGuildChannel?;
 
@@ -36,7 +36,6 @@ class _MusicJoin extends SubCommand {
       return;
     }
 
-    Music.cluster.getOrCreatePlayerNode(event.interaction.guild!.id);
     channel.connect();
 
     sendEmbed<EMBED_RESPOND>(event, text: 'Connected to #${channel.name}');
@@ -55,7 +54,7 @@ class _MusicPlay extends SubCommand {
         ]);
 
   @override
-  FutureOr execute(ISlashCommandInteractionEvent event) async {
+  Future execute(ISlashCommandInteractionEvent event) async {
     final id = event.interaction.guild?.id;
     if (id == null) {
       return event.respond(MessageBuilder.content('An error occured.'));
@@ -84,7 +83,7 @@ class _MusicPause extends SubCommand {
   _MusicPause() : super('pause', 'Pause the current song');
 
   @override
-  FutureOr execute(ISlashCommandInteractionEvent event) async {
+  Future execute(ISlashCommandInteractionEvent event) async {
     final id = event.interaction.guild?.id;
     if (id == null) {
       return event.respond(MessageBuilder.content('An error occured.'));
@@ -99,7 +98,7 @@ class _MusicPause extends SubCommand {
 class _MusicResume extends SubCommand {
   _MusicResume() : super('resume', 'Resume the current song');
   @override
-  FutureOr execute(ISlashCommandInteractionEvent event) async {
+  Future execute(ISlashCommandInteractionEvent event) async {
     final id = event.interaction.guild?.id;
     if (id == null) {
       return event.respond(MessageBuilder.content('An error occured.'));
@@ -115,7 +114,7 @@ class _MusicSkip extends SubCommand {
   _MusicSkip() : super('skip', 'Skip the current song');
 
   @override
-  FutureOr execute(ISlashCommandInteractionEvent event) async {
+  Future execute(ISlashCommandInteractionEvent event) async {
     final id = event.interaction.guild?.id;
     if (id == null) {
       return event.respond(MessageBuilder.content('An error occured.'));
@@ -131,7 +130,7 @@ class _MusicStop extends SubCommand {
   _MusicStop() : super('stop', 'Stop the current song');
 
   @override
-  FutureOr execute(ISlashCommandInteractionEvent event) async {
+  Future execute(ISlashCommandInteractionEvent event) async {
     final id = event.interaction.guild?.id;
     if (id == null) {
       return event.respond(MessageBuilder.content('An error occured.'));
