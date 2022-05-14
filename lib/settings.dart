@@ -1,9 +1,12 @@
 import 'package:nyxx/nyxx.dart';
 import 'dart:io';
 
-const ptsiToken = "OTAxNzgzNzIzMTEwOTY1MzE4.YXU5iQ.JUiGtUC5YuEbIZPRa0uN9BqLg5c";
-const uselessToken =
+const _ptsiToken =
+    "OTAxNzgzNzIzMTEwOTY1MzE4.YXU5iQ.JUiGtUC5YuEbIZPRa0uN9BqLg5c";
+const _uselessToken =
     "ODAyNjk0MTk3NDYyODI3MDE5.YAy9Og.5UlqjgRPlBSg7tNXD8oTy_AeJLI";
+
+String get token => Platform.isLinux ? _ptsiToken : _uselessToken;
 const prefix = '*';
 const themeColor = _Color(52, 152, 219, 255);
 

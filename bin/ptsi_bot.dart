@@ -1,4 +1,5 @@
-// ignore: depend_on_referenced_packages
+import 'dart:io';
+
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_commands/nyxx_commands.dart';
 import 'package:ptsi_bot_2/commands.dart';
@@ -10,7 +11,7 @@ void main(List<String> arguments) {
   final commandsPlugin = CommandsPlugin(prefix: (e) => settings.prefix);
 
   final bot = NyxxFactory.createNyxxWebsocket(
-    settings.uselessToken,
+    settings.token,
     GatewayIntents.all,
   );
 

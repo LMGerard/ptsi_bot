@@ -7,7 +7,7 @@ import 'package:ptsi_bot_2/settings.dart' as settings;
 
 void main() {
   final bot = NyxxFactory.createNyxxWebsocket(
-    settings.uselessToken,
+    settings.token,
     GatewayIntents.all,
   );
   bot
