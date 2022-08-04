@@ -1,8 +1,10 @@
 import 'package:nyxx_commands/nyxx_commands.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
+import 'package:ptsi_bot_2/cli/cli.dart';
 import 'package:ptsi_bot_2/commands/avatar.dart';
 import 'package:ptsi_bot_2/commands/emoji_text.dart';
+import 'package:ptsi_bot_2/commands/int_to_bin.dart';
 import 'package:ptsi_bot_2/commands/liaisons.dart';
 import 'package:ptsi_bot_2/commands/music.dart';
 import 'package:ptsi_bot_2/commands/pgcd.dart';
@@ -24,6 +26,7 @@ final commands = [
   WC(),
   Quizz(),
   Text2emojis(),
+  IntToBin(),
 ];
 
 abstract class SupCommand {
@@ -48,9 +51,15 @@ abstract class SupCommand {
       imageUrl: imageUrl,
     );
     if (event is IInteractionEventWithAcknowledge) {
+      if (Cli.hiddens.contains(event.interaction.userAuthor?.id.id)) {
+        private = true;
+      }
       await event.respond(msg, hidden: private);
       return event.getOriginalResponse();
     } else if (event is IChatContext) {
+      if (Cli.hiddens.contains(event.user.id.id)) {
+        private = true;
+      }
       return event.respond(msg, private: private);
     } else {
       throw ArgumentError(

@@ -6,7 +6,7 @@ const _ptsiToken =
 const _uselessToken =
     "ODAyNjk0MTk3NDYyODI3MDE5.YAy9Og.5UlqjgRPlBSg7tNXD8oTy_AeJLI";
 
-String get token => Platform.isLinux ? _ptsiToken : _uselessToken;
+String get token => _ptsiToken; //Platform.isLinux ? _ptsiToken : _uselessToken;
 const prefix = '*';
 const themeColor = _Color(52, 152, 219, 255);
 

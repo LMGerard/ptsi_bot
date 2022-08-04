@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_commands/nyxx_commands.dart';
 import 'package:ptsi_bot_2/commands.dart';
