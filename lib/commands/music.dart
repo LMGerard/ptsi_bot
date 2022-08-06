@@ -12,6 +12,7 @@ class Music extends CommandGroup {
           _Pause(),
           _Resume(),
           _Stop(),
+          _Skip(),
           _Clear(),
         ]);
 
