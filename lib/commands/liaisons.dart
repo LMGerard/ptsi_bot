@@ -7,7 +7,7 @@ import 'package:nyxx_interactions/nyxx_interactions.dart';
 import 'package:path/path.dart' as path;
 import 'package:ptsi_bot_2/settings.dart';
 
-final filePath = path.join(PATH, 'resources', 'liaisons.jpg');
+final filePath = 'resources/liaisons.jpg';
 
 class Liaisons extends Command {
   final im = decodeImage(File(filePath).readAsBytesSync())!;

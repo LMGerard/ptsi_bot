@@ -2,3 +2,4 @@ version: '3.9'
 services:
   ptsi_bot:
     build: .
+    restart: unless-stopped
