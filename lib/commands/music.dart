@@ -90,8 +90,17 @@ class _Stop extends SubCommand {
       };
 }
 
+class _Skip extends SubCommand {
+  _Skip() : super('skip', 'Skip the music.');
+  @override
+  Function get execute => (IChatContext context) async {
+        Music.node(context.guild!.id).skip(context.guild!.id);
+        respond(context, text: "Music skipped");
+      };
+}
+
 class _Clear extends SubCommand {
-  _Clear() : super('skip', 'Skip the music.');
+  _Clear() : super('clear', 'Clear the music queue.');
   @override
   Function get execute => (IChatContext context) async {
         Music.node(context.guild!.id).clearPlayers();
