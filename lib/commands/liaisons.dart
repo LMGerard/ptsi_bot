@@ -4,7 +4,6 @@ import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_commands/nyxx_commands.dart';
 import 'package:ptsi_bot_2/commands.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
-import 'package:path/path.dart' as path;
 import 'package:ptsi_bot_2/settings.dart';
 
 final filePath = 'resources/liaisons.jpg';

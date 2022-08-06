@@ -76,7 +76,7 @@ class _Resume extends SubCommand {
   Function get execute => (IChatContext context) async {
         Music.node(context.guild!.id).resume(context.guild!.id);
 
-        respond(context, text: "Music paused");
+        respond(context, text: "Music resumed");
       };
 }
 
@@ -86,7 +86,7 @@ class _Stop extends SubCommand {
   Function get execute => (IChatContext context) async {
         Music.node(context.guild!.id).stop(context.guild!.id);
 
-        respond(context, text: "Music paused");
+        respond(context, text: "Music stopped");
       };
 }
 
@@ -94,7 +94,7 @@ class _Clear extends SubCommand {
   _Clear() : super('skip', 'Skip the music.');
   @override
   Function get execute => (IChatContext context) async {
-        Music.node(context.guild!.id).skip(context.guild!.id);
-        respond(context, text: "Music paused");
+        Music.node(context.guild!.id).clearPlayers();
+        respond(context, text: "Music queue cleared");
       };
 }
