@@ -1,10 +1,8 @@
 import 'package:nyxx/nyxx.dart';
 import 'dart:io';
 
-const _ptsiToken =
-    "OTAxNzgzNzIzMTEwOTY1MzE4.YXU5iQ.JUiGtUC5YuEbIZPRa0uN9BqLg5c";
-const _uselessToken =
-    "ODAyNjk0MTk3NDYyODI3MDE5.YAy9Og.5UlqjgRPlBSg7tNXD8oTy_AeJLI";
+const _ptsiToken = "";
+const _uselessToken = "";
 
 String get token => _ptsiToken; //Platform.isLinux ? _ptsiToken : _uselessToken;
 const prefix = '*';
