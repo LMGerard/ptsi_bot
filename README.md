@@ -1,1 +1,1 @@
-A bot created during my first year of prep school using dartlang.
+A discord bot created during my first year of prep school using dartlang.
